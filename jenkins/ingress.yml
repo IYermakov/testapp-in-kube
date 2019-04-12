@@ -1,0 +1,23 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /
+    nginx.org/proxy-connect-timeout: "30s"
+    nginx.org/proxy-read-timeout: "20s"
+    nginx.org/client-max-body-size: "4m"
+    nginx.org/server-snippets: |
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        backend:
+          serviceName: jenkins-pod
+          servicePort: 8080
+      - path: /
+        backend:
+          serviceName: jenkins-pod2
+          servicePort: 8080
+#31618
