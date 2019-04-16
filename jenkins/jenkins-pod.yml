@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: jenkins-pod2
+  name: jenkins-pod
   labels:
     zone: test
     version: v1
