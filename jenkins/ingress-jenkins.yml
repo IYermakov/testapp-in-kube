@@ -2,20 +2,22 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: jenkins-ingress-nginx
-#  annotations:
-#     kubernetes.io/ingress.class: "nginx"
+  annotations:
+     kubernetes.io/ingress.class: "nginx"
 #    ingress.kubernetes.io/rewrite-target: /
 #    nginx.org/proxy-connect-timeout: "30s"
 #    nginx.org/proxy-read-timeout: "20s"
 #    nginx.org/client-max-body-size: "4m"
 #    nginx.org/server-snippets: |
 spec:
-  tls:
-   - hosts:
-     - jenkins.devcluster.eu-de.containers.appdomain.cloud
-     secretName: devcluster
+#  tls:
+#   - hosts:
+#     - jenkins.devcluster.eu-de.containers.appdomain.cloud
+#     secretName: devcluster
+#     secretName: devcluster
   rules:
-  - host: jenkins.devcluster.eu-de.containers.appdomain.cloud
+#  - host: jenkins.devcluster.eu-de.containers.appdomain.cloud
+  - host: jenkins.abraabra.com
     http:
       paths:
       - path: /

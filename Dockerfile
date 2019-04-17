@@ -1,8 +1,8 @@
 FROM openjdk:8-jre-alpine
 WORKDIR /
-ADD dropwizard.jar dropwizard.jar
-ADD mysql.yml mysql.yml
+ADD target/dropwizard-example-0.0.1-SNAPSHOT.jar dropwizard.jar
+ADD example.yml example.yml
 EXPOSE 8080
 EXPOSE 8081
-CMD java -Xmx750M -jar dropwizard.jar server mysql.yml
-#LABEL "com.datadoghq.ad.logs"='[{"environment": "qa", "source": "application", "service": "dropwizard"}]'
+CMD java -jar dropwizard.jar db migrate example.yml
+CMD java -Xmx750M -jar dropwizard.jar server example.yml
