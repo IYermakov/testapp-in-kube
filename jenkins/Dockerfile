@@ -14,9 +14,12 @@ RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
 RUN apt-get update && apt-get install -y apt-utils software-properties-common
 RUN echo /etc/lsb-release
 RUN echo /etc/os-release
-RUN grep VERSION_CODENAME /etc/os-release | cut -d'=' -f2
-RUN add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(grep VERSION_CODENAME /etc/os-release | cut -d'=' -f2) stable"
+#RUN grep VERSION_CODENAME /etc/os-release | cut -d'=' -f2
+RUN add-apt-repository "deb https://download.docker.com/linux/ubuntu $(grep VERSION_CODENAME /etc/os-release | cut -d'=' -f2) stable"
 RUN apt-get update && apt-get install -y sudo maven docker-ce
+RUN usermod -aG docker jenkins
+RUN systemctl enable docker
+RUN service docker start
 
 # Set up Docker
 #RUN wget https://download.docker.com/linux/ubuntu/dists/trusty/pool/stable/amd64/$DOCKER_VERSION
