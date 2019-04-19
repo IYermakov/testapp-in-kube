@@ -1,31 +1,27 @@
-node {
-    def app
+def label = "builder-${UUID.randomUUID().toString()}"
 
-    stage('Clone repository') {
-        checkout scm
-    }
+podTemplate(label: label, containers: [
+  containerTemplate(name: 'maven', image: 'maven:3.3.9-jdk-8-alpine', ttyEnabled: true, command: 'cat'),
+  containerTemplate(name: 'docker', image: 'docker:latest', ttyEnabled: true, command: 'cat'),
+  ],
+  volumes: [hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock'),],) {
+    body.call(label)
+  }
+{
 
-    stage('Build image') {
-        app = docker.build("notregistered/dropw-app")
-    }
-
-    stage('Test image') {
-        /* Ideally, we would run a test framework against our image.
-         * For this example, we're using a Volkswagen-type approach ;-) */
-
-        app.inside {
-            sh 'echo "Tests passed"'
+    node(label) {
+        stage('Build a Maven project') {
+            git 'https://github.com/IYermakov/testapp-in-kube'
+            container('maven') {
+                sh 'mvn -B clean package'
+            }
         }
-    }
-
-    stage('Push image') {
-        /* Finally, we'll push the image with two tags:
-         * First, the incremental build number from Jenkins
-         * Second, the 'latest' tag.
-         * Pushing multiple tags is cheap, as all the layers are reused. */
-        docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-            app.push("${env.BUILD_NUMBER}")
-            app.push("latest")
+        stage('Docker build and push to hub') {
+            container('docker') {
+                sh 'ls -la ./ target'
+                sh 'docker build -t notregistered/dropw-app-b .'
+                sh 'docker push notregistered/dropw-app-b'
+            }
         }
     }
 }

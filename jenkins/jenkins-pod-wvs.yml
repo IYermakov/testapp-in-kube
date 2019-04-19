@@ -10,6 +10,8 @@ spec:
       labels:
         app: jenkins
     spec:
+      serviceAccountName: jenkins
+#      automountServiceAccountToken: false
       containers:
       - name: master
         image: jenkins/jenkins:latest
@@ -55,7 +57,7 @@ spec:
           runAsUser: 0
 #          fsGroup: 0
         command: ["/bin/sh","-c"]
-        args: ["chown 1000:1000 /var/jenkins_home; echo 'AAAAAAAAAAAAAAAAAAA' "]
+        args: ["chown 1000:1000 /var/jenkins_home; chown 1000:0 /var/run/docker.sock"]
         volumeMounts:
         - mountPath: /var/jenkins_home
           name: jenkins-vol

@@ -1,0 +1,30 @@
+def label = "builder-${UUID.randomUUID().toString()}"
+podTemplate(label: label, containers: [
+    containerTemplate(name: 'maven', image: 'maven:3.3.9-jdk-8-alpine', ttyEnabled: true, command: 'cat'),
+    containerTemplate(name: 'docker', image: 'docker:dind', ttyEnabled: true, command: 'cat')
+  ]) {
+
+    node(label) {
+        stage('Build app') {
+            git 'https://github.com/IYermakov/testapp-in-kube'
+            container('maven') {
+                stage('Build a Maven project') {
+                    sh 'mvn -B clean package'
+                }
+            }
+        }
+
+        stage('Build and push image') {
+            container('docker') {
+                stage('Build an image') {
+                    sh """
+                    ls -la ./ target
+                    docker build -t notregistered/dropw-app-b .
+                    docker push notregistered/dropw-app-b
+                    """
+                }
+            }
+        }
+
+    }
+}
