@@ -37,8 +37,8 @@ spec:
         volumeMounts:
         - mountPath: /var/jenkins_home
           name: jenkins-vol
-        - mountPath: /var/run/docker.sock
-          name: docker-socket
+#        - mountPath: /var/run/docker.sock
+#          name: docker-socket
         securityContext:
           privileged: true
         resources:
@@ -57,16 +57,16 @@ spec:
           runAsUser: 0
 #          fsGroup: 0
         command: ["/bin/sh","-c"]
-        args: ["chown 1000:1000 /var/jenkins_home; chown 1000:0 /var/run/docker.sock"]
+        args: ["chown 1000:1000 /var/jenkins_home"]
         volumeMounts:
         - mountPath: /var/jenkins_home
           name: jenkins-vol
-        - mountPath: /var/run/docker.sock
-          name: docker-socket
+#        - mountPath: /var/run/docker.sock
+#          name: docker-socket
       volumes:
-      - name: docker-socket
-        hostPath:
-           path: /var/run/docker.sock
+#      - name: docker-socket
+#        hostPath:
+#           path: /var/run/docker.sock
       - name: jenkins-vol
         persistentVolumeClaim:
           claimName: jenkins-vol
