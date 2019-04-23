@@ -69,8 +69,8 @@ spec:
     stage ('Deploy to k8s') {
         container('kubectl') {
             sh """
-                kubectl apply -f kubernetes/app-pod.yml
-//                helm install --set version=$VERSION ./dropw-app
+//                kubectl apply -f kubernetes/app-pod.yml
+                helm install --set version=$VERSION ./dropw-app
             """
         }
     }
