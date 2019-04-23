@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: app-pod
+  name: app-pod-${VERSION}
   labels:
     zone: test
     version: v1
