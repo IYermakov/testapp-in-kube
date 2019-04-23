@@ -44,7 +44,7 @@ spec:
     stage('Preparation') {
       git 'https://github.com/IYermakov/testapp-in-kube'
     }
-    
+/*    
     stage ('build') {
         container('maven') {
             sh "mvn -Dmaven.test.failure.ignore clean package"
@@ -65,12 +65,10 @@ spec:
             }
         }
     }
-    
+*/
     stage ('Deploy to k8s') {
         container('kubectl') {
-            sh """
-                kubectl apply -f kubernetes/app-pod.yml
-            """
+            sh "kubectl apply -f jenkins/app-pod.yml"
         }
     }
   }
