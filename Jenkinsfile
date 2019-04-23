@@ -70,6 +70,7 @@ spec:
         container('kubectl') {
             sh """
                 kubectl apply -f kubernetes/app-pod.yml
+//                helm install --set version=$VERSION ./dropw-app
             """
         }
     }
