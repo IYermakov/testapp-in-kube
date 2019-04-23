@@ -1,4 +1,4 @@
-def label = "worker-${UUID.randomUUID().toString()}"
+def label = "mypod-${UUID.randomUUID().toString()}"
 podTemplate(label: label, yaml: """
 apiVersion: v1
 kind: Pod
@@ -9,7 +9,7 @@ metadata:
 spec:
   containers:
     - name: jnlp
-      image: jenkinsci/jnlp-slave
+      image: docker
       env:
       - name: POD_IP
         valueFrom:
@@ -33,9 +33,12 @@ spec:
 ) {
 
     node (label) {
-        docker info
-        checkout scm
-
+        stage('Build app') {
+            container('jnlp') {
+                sh "hostname"
+                docker info
+            }
+        }
         stage('Build app') {
             git 'https://github.com/IYermakov/testapp-in-kube'
             container('maven') {
