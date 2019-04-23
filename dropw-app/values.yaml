@@ -26,7 +26,7 @@ ingress:
     - host: app.devcluster.eu-de.containers.appdomain.cloud
       paths: []
 
-  tls:
+  tls: []
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
