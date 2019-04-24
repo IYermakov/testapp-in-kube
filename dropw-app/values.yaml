@@ -15,6 +15,7 @@ fullnameOverride: ""
 
 service:
   type: NodePort
+#  type: ClusterIP
   port: 8080
 
 ingress:
@@ -24,9 +25,9 @@ ingress:
     # kubernetes.io/tls-acme: "true"
   hosts:
     - host: app.devcluster.eu-de.containers.appdomain.cloud
-      paths: []
+#      paths: /
 
-  tls: []
+  tls:
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
