@@ -80,8 +80,8 @@ spec:
       steps {
         container('docker') {
             sh """
-            docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH_SHORT}:${VERSION} .
-            docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH_SHORT}:${VERSION}
+            docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${VERSION} .
+            docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${VERSION}
             """
         }
       }
