@@ -10,7 +10,7 @@ pipeline {
   agent {
     kubernetes {
 //        label "$BUILDER"
-        serviceAccount jenkins
+        serviceAccount "jenkins"
         yaml """
 apiVersion: v1
 kind: Pod
