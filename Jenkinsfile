@@ -59,7 +59,7 @@ spec:
         }
       }
     }
-    stage('Build and Publish Image') {
+    stage('Build and Publish Image from master') {
       when {
         branch 'master'
       }
@@ -71,6 +71,8 @@ spec:
             """
         }
       }
+    }
+    stage('Build and Publish Image from other branches') {
       when {
         not {
             branch 'master'
@@ -84,7 +86,7 @@ spec:
             """
         }
       }
-
     }
+
   }
 }
