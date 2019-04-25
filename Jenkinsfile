@@ -9,7 +9,7 @@ pipeline {
   }
   agent {
     kubernetes {
-        label "${BUILDER}"
+        label "$BUILDER"
         serviceAccount jenkins
         yaml """
 apiVersion: v1
@@ -97,7 +97,7 @@ spec:
         }
         steps {
             echo "Build docker image"
-//            sh 'docker build -t notregistered/${scmVars.BRANCH} .'
+            sh 'docker build -t notregistered/dropw-${BRANCH_NAME} .'
             sh 'printenv'
         }
     }
