@@ -1,4 +1,11 @@
 pipeline {
+  options {
+    timestamps()
+  }
+  environment {
+    IMAGE = 'dropw'
+    VERSION = '{env.GIT_COMMIT}'
+  }
   agent {
     kubernetes {
       label 'mypod'
@@ -47,4 +54,16 @@ spec:
       }
     }
   }
+  stage('Build and Publish Image') {
+      when {
+        branch 'master'
+      }
+      steps {
+        sh """
+          docker build -t ${IMAGE} .
+          docker tag ${IMAGE} ${IMAGE}:${VERSION}
+          docker push ${IMAGE}:${VERSION}
+        """
+      }
+    }
 }
