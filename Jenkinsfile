@@ -54,7 +54,6 @@ spec:
   }
   stages {
     stage("Build Application") {
-      def scmVars = checkout scm
       steps {
         echo "building master branch"
         container('maven') {
@@ -98,7 +97,7 @@ spec:
         }
         steps {
             echo "Build docker image"
-            sh 'docker build -t notregistered/${scmVars.GIT_BRANCH} .'
+//            sh 'docker build -t notregistered/${scmVars.BRANCH} .'
             sh 'printenv'
         }
     }
