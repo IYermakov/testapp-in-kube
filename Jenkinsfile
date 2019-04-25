@@ -53,17 +53,19 @@ spec:
         }
       }
     }
-  }
-  stage('Build and Publish Image') {
+    stage('Build and Publish Image') {
       when {
         branch 'master'
       }
       steps {
-        sh """
-          docker build -t ${IMAGE} .
-          docker tag ${IMAGE} ${IMAGE}:${VERSION}
-          docker push ${IMAGE}:${VERSION}
-        """
+        container('maven') {
+            sh """
+            docker build -t ${IMAGE} .
+            docker tag ${IMAGE} ${IMAGE}:${VERSION}
+            docker push ${IMAGE}:${VERSION}
+            """
+        }
       }
     }
+  }
 }
