@@ -3,6 +3,7 @@ pipeline {
     timestamps()
   }
   environment {
+    DOCKERHUB_REPO = 'notregistered'
     IMAGE = 'dropw'
     VERSION = '${env.GIT_COMMIT}'
   }
@@ -64,9 +65,8 @@ spec:
       steps {
         container('docker') {
             sh """
-            docker build -t ${IMAGE} .
-            docker tag ${IMAGE} ${IMAGE}:${VERSION}
-            docker push ${IMAGE}:${VERSION}
+            docker build -t ${DOCKERHUB_REPO}/${IMAGE}:${VERSION} .
+            docker push ${DOCKERHUB_REPO}/${IMAGE}:${VERSION}
             """
         }
       }
