@@ -4,7 +4,7 @@ pipeline {
   }
   environment {
     IMAGE = 'dropw'
-    VERSION = '{env.GIT_COMMIT}'
+    VERSION = '${env.GIT_COMMIT}'
   }
   agent {
     kubernetes {
@@ -20,8 +20,12 @@ spec:
       - cat
       tty: true
       env:
+      - name: POD_IP
+        valueFrom:
+          fieldRef:
+            fieldPath: status.podIP
       - name: DOCKER_HOST
-        value: tcp://localhost:2375 */
+        value: tcp://localhost:2375
     - name: maven
       image: maven:latest
       command:
@@ -58,7 +62,7 @@ spec:
         branch 'master'
       }
       steps {
-        container('maven') {
+        container('docker') {
             sh """
             docker build -t ${IMAGE} .
             docker tag ${IMAGE} ${IMAGE}:${VERSION}
