@@ -6,7 +6,7 @@ pipeline {
     DOCKERHUB_REPO = 'notregistered'
     IMAGE = 'dropw'
     VERSION = '${env.GIT_COMMIT}'
-//    BRANCH = sh(returnStdout: true, script: 'git rev-parse --abbrev-ref HEAD').trim()
+    BRANCH = sh(returnStdout: true, script: 'git rev-parse --abbrev-ref HEAD').trim()
   }
   agent {
     kubernetes {
