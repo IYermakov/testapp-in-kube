@@ -9,45 +9,52 @@ pipeline {
   }
   agent {
     kubernetes {
-        label ${BUILDER}
-        podTemplate {
-            serviceAccountName: jenkins
-            volumes {
-                Volume(Name: 'dind-storage', emtyDir: {})
-            }
-            containerTemplate {
-                name 'docker'
-                image 'docker:latest'
-                ttyEnabled true
-                command 'cat'
-                envVars: [
-                    containerEnvVar(key: 'DOCKER_HOST', value: 'tcp://localhost:2375')
-//                  containerEnvVar(key: 'POD_IP', valueFrom: (fieldRef: (fieldPath: ${status.podIP})))
-                ]
-            }
-            containerTemplate {
-                name 'maven'
-                image 'maven:latest'
-                ttyEnabled true
-                command 'cat'
-            }
-            containerTemplate {
-                name 'dind'
-                image 'docker:18.05-dind'
-                ttyEnabled true
-                privieged true
-                command 'cat'
-            }
-        }
+        label "${BUILDER}"
+        serviceAccount jenkins
+        yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+    - name: docker
+      image: docker
+      command:
+      - cat
+      tty: true
+      env:
+      - name: POD_IP
+        valueFrom:
+          fieldRef:
+            fieldPath: status.podIP
+      - name: DOCKER_HOST
+        value: tcp://localhost:2375
+    - name: maven
+      image: maven:latest
+      command:
+      - cat
+      tty: true
+    - name: kubectl
+      image: lachlanevenson/k8s-kubectl
+//      image: dtzar/helm-kubectl
+      command:
+      - cat
+      tty: true
+    - name: dind
+      image: docker:18.05-dind
+      securityContext:
+        privileged: true
+      volumeMounts:
+        - name: dind-storage
+          mountPath: /var/lib/docker
+  volumes:
+    - name: dind-storage
+      emptyDir: {}
+"""
     }
   }
   stages {
-/*    stage("Preparation") {
-        steps {
-            echo "Stage Preparation"
-        }
-    }*/
     stage("Build Application") {
+      def scmVars = checkout scm
       steps {
         echo "building master branch"
         container('maven') {
@@ -91,7 +98,7 @@ pipeline {
         }
         steps {
             echo "Build docker image"
-            sh 'docker build -t notregistered/${$GIT_BRANCH} .'
+            sh 'docker build -t notregistered/${scmVars.GIT_BRANCH} .'
             sh 'printenv'
         }
     }
