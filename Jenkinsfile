@@ -13,12 +13,12 @@ spec:
       - cat
       tty: true
       env:
-      - name: POD_IP
+/*      - name: POD_IP
         valueFrom:
           fieldRef:
             fieldPath: status.podIP
       - name: DOCKER_HOST
-        value: tcp://localhost:2375
+        value: tcp://localhost:2375 */
     - name: maven
       image: maven:latest
       command:
@@ -26,7 +26,6 @@ spec:
       tty: true
     - name: kubectl
       image: lachlanevenson/k8s-kubectl
-//      image: dtzar/helm-kubectl
       command:
       - cat
       tty: true
