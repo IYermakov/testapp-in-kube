@@ -6,6 +6,7 @@ pipeline {
     DOCKERHUB_REPO = 'notregistered'
     IMAGE = 'dropw'
     VERSION = '${env.GIT_COMMIT}'
+//    BRANCH = sh(returnStdout: true, script: 'git rev-parse --abbrev-ref HEAD').trim()
   }
   agent {
     kubernetes {
@@ -70,6 +71,20 @@ spec:
             """
         }
       }
+      when {
+        not {
+            branch 'master'
+        }
+      }
+      steps {
+        container('docker') {
+            sh """
+            docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${BRANCH}:${VERSION} .
+            docker push ${DOCKERHUB_REPO}/${IMAGE}-${BRANCH}:${VERSION}
+            """
+        }
+      }
+
     }
   }
 }
