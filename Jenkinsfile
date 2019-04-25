@@ -1,8 +1,8 @@
 pipeline {
-//  agent any
+/*  agent any
   environment {
-//        BUILDER = "builder-${UUID.randomUUID().toString()}"
-  }
+        BUILDER = "builder-${UUID.randomUUID().toString()}"
+  }*/
   // using the Timestamper plugin we can add timestamps to the console log
   options {
     timestamps()
