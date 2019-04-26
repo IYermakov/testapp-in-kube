@@ -91,11 +91,9 @@ spec:
       when { allOf { not { branch 'master' }; buildingTag() } }
       steps {
         container('docker') {
-            script {    void whateverFunction() {
-        sh 'ls /'
-    }
-}
-            whateverFunction()
+            sh '''
+                echo ${G_TAG}
+            '''
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                 sh '''
@@ -106,7 +104,7 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
         }
       }
     }
-        stage('Build and Publish Image from other branches with tag') {
+    stage('Build and Publish Image from other branches with tag') {
       when { allOf { not { branch 'master' }; buildingTag() } }
       steps {
         container('docker') {
