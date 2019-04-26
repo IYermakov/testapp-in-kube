@@ -89,12 +89,10 @@ spec:
     }
     stage('Build and Publish Image from other branches') {
       when { not { branch 'master' } }
-        steps {
-         sh 'echo ${TAG_NAME}'
-        }
       steps {
         container('docker') {
             sh '''
+                sh 'echo ${TAG_NAME}'
                 echo ${DOCKERHUB_REPO}
                 echo ${IMAGE}
                 echo ${GIT_TAG_COMMIT}
