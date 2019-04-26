@@ -62,13 +62,13 @@ spec:
     }
     stage('Build and Publish Image from master') {
       when {
-        branch 'master'
+        allOf { branch 'master'; tag }
       }
       steps {
         container('docker') {
             sh '''
-            docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_TAG_COMMIT} .
-            docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_TAG_COMMIT}
+            docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${TAG_NAME} .
+            docker push ${DOCKERHUB_REPO}/${IMAGE}-${TAG_NAME}
             '''
         }
       }
@@ -79,6 +79,15 @@ spec:
             branch 'master'
         }
       }
+      when { tag "*" }
+        steps {
+         sh 'echo ${TAG_NAME}'
+        }
+      when { not { tag "*" } }
+        steps {
+         sh 'echo ${GIT_TAG_COMMIT}'
+        }
+
       steps {
         container('docker') {
             sh '''
@@ -91,21 +100,11 @@ spec:
             '''
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
-                when { tag "*" }
-                    steps {
-                        sh '''
-                        docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${TAG_NAME} .
-                        docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${TAG_NAME}
-                        '''
-                    }
-//                when { not { tag "*" } }
-//                    steps {
-//                    sh '''
-//                    docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT} .
-//                    docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
-//                    '''
-//                    }
-                }
+                sh '''
+                    docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${TAG_NAME} .
+                    docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${TAG_NAME}
+                '''
+            }
         }
       }
     }
