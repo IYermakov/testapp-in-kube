@@ -115,7 +115,6 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                 echo ${GIT_TAG_COMMIT}
                 echo ${GIT_BRANCH}
                 echo ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
-                echo ${G_TAG}
                 echo ${TAG_NAME}
             '''
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
