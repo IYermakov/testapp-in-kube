@@ -11,7 +11,6 @@ pipeline {
   agent {
     kubernetes {
       label 'mypod'
-//      yamlFile 'workerpod.yml'
         yaml """
 apiVersion: v1
 kind: Pod
@@ -58,7 +57,7 @@ spec:
         container('maven') {
           sh 'mvn -Dmaven.test.failure.ignore clean package'
           sh 'printenv'
-          echo '${env.GIT_TAG_COMMIT}'
+          sh 'echo ${env.GIT_TAG_COMMIT}'
         }
       }
     }
@@ -68,6 +67,12 @@ spec:
       }
       steps {
         container('docker') {
+            sh """
+            echo ${DOCKERHUB_REPO}
+            echo ${IMAGE}
+            echo ${VERSION}
+            echo ${DOCKERHUB_REPO}/${IMAGE}:${VERSION}
+            """
             sh """
             docker build -t ${DOCKERHUB_REPO}/${IMAGE}:${VERSION} .
             docker push ${DOCKERHUB_REPO}/${IMAGE}:${VERSION}
