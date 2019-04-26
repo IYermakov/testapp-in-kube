@@ -5,7 +5,6 @@ pipeline {
   environment {
     DOCKERHUB_REPO = 'notregistered'
     IMAGE = 'dropw'
-    VERSION = '${env.GIT_COMMIT}'
     GIT_TAG_COMMIT = sh (script: 'git describe --tags --always', returnStdout: true).trim()
   }
   agent {
@@ -66,18 +65,10 @@ spec:
       }
       steps {
         container('docker') {
-            sh """
-            echo ${DOCKERHUB_REPO}
-            echo ${IMAGE}
-            echo ${VERSION}
-            echo ${GIT_TAG_COMMIT}
-            echo ${GIT_BRANCH}
-            echo ${DOCKERHUB_REPO}/${IMAGE}:${VERSION}
-            """
-            sh """
-            docker build -t ${DOCKERHUB_REPO}/${IMAGE}:${VERSION} .
-            docker push ${DOCKERHUB_REPO}/${IMAGE}:${VERSION}
-            """
+            sh '''
+            docker build -t ${DOCKERHUB_REPO}/${IMAGE}:${GIT_TAG_COMMIT} .
+            docker push ${DOCKERHUB_REPO}/${IMAGE}:${GIT_TAG_COMMIT}
+            '''
         }
       }
     }
@@ -92,18 +83,17 @@ spec:
             sh '''
             echo ${DOCKERHUB_REPO}
             echo ${IMAGE}
-            echo ${VERSION}
             echo ${GIT_TAG_COMMIT}
             echo ${GIT_BRANCH}
-            echo ${DOCKERHUB_REPO}/${IMAGE}:${VERSION}
+            echo ${DOCKERHUB_REPO}/${IMAGE}:${GIT_TAG_COMMIT}
             '''
+            docker.build 
             sh '''
-            docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${VERSION} .
-            docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${VERSION}
+            docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT} .
+            docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
             '''
         }
       }
     }
-
   }
 }
