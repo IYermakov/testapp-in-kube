@@ -93,6 +93,7 @@ spec:
         container('docker') {
             sh '''
                 echo ${G_TAG}
+                echo ${TAG_NAME}
             '''
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
@@ -109,19 +110,19 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
       steps {
         container('docker') {
             sh '''
-                echo ${TAG_NAME}
                 echo ${DOCKERHUB_REPO}
                 echo ${IMAGE}
                 echo ${GIT_TAG_COMMIT}
                 echo ${GIT_BRANCH}
-                echo ${TAG_NAME}
                 echo ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
+                echo ${G_TAG}
+                echo ${TAG_NAME}
             '''
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                 sh '''
-                    docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${TAG_NAME} .
-                    docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${TAG_NAME}
+                    docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT} .
+                    docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
                 '''
             }
         }
