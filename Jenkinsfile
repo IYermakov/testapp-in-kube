@@ -62,7 +62,7 @@ spec:
     }
     stage('Build and Publish Image from master') {
       when {
-        allOf { branch 'master'; tag }
+        allOf { branch 'master'; tag "" }
       }
       steps {
         container('docker') {
@@ -74,11 +74,7 @@ spec:
       }
     }
     stage('Build and Publish Image from other branches') {
-      when {
-        not {
-            branch 'master'
-        }
-      }
+      when { not { branch 'master' } }
       when { tag "*" }
         steps {
          sh 'echo ${TAG_NAME}'
