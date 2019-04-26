@@ -52,6 +52,7 @@ spec:
   }
   stages {
     stage('Run maven') {
+      when { branch 'master' }
       steps {
         container('maven') {
           sh 'mvn -Dmaven.test.failure.ignore clean package'
@@ -80,26 +81,23 @@ spec:
       }
       steps {
         container('docker') {
-            sh '''
-            echo ${DOCKERHUB_REPO}
-            echo ${IMAGE}
-            echo ${GIT_TAG_COMMIT}
-            echo ${GIT_BRANCH}
-            echo ${DOCKERHUB_REPO}/${IMAGE}:${GIT_TAG_COMMIT}
-            '''
-            agent {
-               dockerfile {
-                    filename 'Dockerfile'
-                    label 'testapp-in-kube'
-                    registryUrl 'https://index.docker.io/v1/'
-                    registryCredentialsId 'dockerhub'
-                }
+            script {
+                echo ${DOCKERHUB_REPO}
+                echo ${IMAGE}
+                echo ${GIT_TAG_COMMIT}
+                echo ${GIT_BRANCH}
+                echo ${TAG_NAME}
+                echo ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
             }
-            sh 'ls -la'
-//            sh '''
-//            docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT} .
-//            docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
-//            '''
+            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
+usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
+                when { not { buildingTag() } }
+                    docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${TAG_NAME} .
+                    docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${TAG_NAME}
+                when { buildingTag() }
+                    docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT} .
+                    docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
+                }
         }
       }
     }
