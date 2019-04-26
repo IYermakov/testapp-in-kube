@@ -11,7 +11,13 @@ pipeline {
   agent {
     kubernetes {
       label 'mypod'
-      scmVars = checkout scm
+      checkout([
+                    $class: 'GitSCM',
+                    branches: scm.branches,
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: scm.extensions + [[$class: 'SubmoduleOption', disableSubmodules: false, recursiveSubmodules: true, reference: '', trackingSubmodules: false]],
+                    submoduleCfg: [],
+                    userRemoteConfigs: scm.userRemoteConfigs])
       yamlFile 'workerpod.yml'
     }
   }
