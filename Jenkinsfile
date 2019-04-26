@@ -6,6 +6,7 @@ pipeline {
     DOCKERHUB_REPO = 'notregistered'
     IMAGE = 'dropw'
     VERSION = '${env.GIT_COMMIT}'
+    GIT_TAG_COMMIT = sh (script: 'git describe --tags --always', returnStdout: true).trim()
   }
   agent {
     kubernetes {
@@ -21,10 +22,11 @@ spec:
       - cat
       tty: true
       env:
-      - name: POD_IP
+/*      - name: POD_IP
         valueFrom:
           fieldRef:
             fieldPath: status.podIP
+*/
       - name: DOCKER_HOST
         value: tcp://localhost:2375
     - name: maven
