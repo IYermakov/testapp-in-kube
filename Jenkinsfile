@@ -87,10 +87,19 @@ spec:
             echo ${GIT_BRANCH}
             echo ${DOCKERHUB_REPO}/${IMAGE}:${GIT_TAG_COMMIT}
             '''
-            sh '''
-            docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT} .
-            docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
-            '''
+            agent {
+               dockerfile {
+                    filename 'Dockerfile'
+                    label 'testapp-in-kube'
+                    registryUrl 'https://index.docker.io/v1/'
+                    registryCredentialsId 'dockerhub'
+                }
+            }
+            sh 'ls -la'
+//            sh '''
+//            docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT} .
+//            docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
+//            '''
         }
       }
     }
