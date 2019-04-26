@@ -11,13 +11,6 @@ pipeline {
   agent {
     kubernetes {
       label 'mypod'
-      checkout([
-                    $class: 'GitSCM',
-                    branches: scm.branches,
-                    doGenerateSubmoduleConfigurations: false,
-                    extensions: scm.extensions + [[$class: 'SubmoduleOption', disableSubmodules: false, recursiveSubmodules: true, reference: '', trackingSubmodules: false]],
-                    submoduleCfg: [],
-                    userRemoteConfigs: scm.userRemoteConfigs])
       yamlFile 'workerpod.yml'
     }
   }
@@ -25,6 +18,13 @@ pipeline {
     stage('Run maven') {
       steps {
         container('maven') {
+          checkout([
+                    $class: 'GitSCM',
+                    branches: scm.branches,
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: scm.extensions + [[$class: 'SubmoduleOption', disableSubmodules: false, recursiveSubmodules: true, reference: '', trackingSubmodules: false]],
+                    submoduleCfg: [],
+                    userRemoteConfigs: scm.userRemoteConfigs])
           sh 'mvn -Dmaven.test.failure.ignore clean package'
           sh 'printenv'
           echo '${env.GIT_TAG_COMMIT}'
