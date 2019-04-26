@@ -81,22 +81,26 @@ spec:
       }
       steps {
         container('docker') {
-            script {
+            sh '''
                 echo ${DOCKERHUB_REPO}
                 echo ${IMAGE}
                 echo ${GIT_TAG_COMMIT}
                 echo ${GIT_BRANCH}
                 echo ${TAG_NAME}
                 echo ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
-            }
+            '''
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                 when { not { buildingTag() } }
+                    sh '''
                     docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${TAG_NAME} .
                     docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${TAG_NAME}
+                    '''
                 when { buildingTag() }
+                    sh '''
                     docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT} .
                     docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
+                    '''
                 }
         }
       }
