@@ -23,10 +23,10 @@ spec:
       - cat
       tty: true
       env:
-      - name: POD_IP
-        valueFrom:
-          fieldRef:
-            fieldPath: status.podIP
+//      - name: POD_IP
+//        valueFrom:
+//          fieldRef:
+//            fieldPath: status.podIP
       - name: DOCKER_HOST
         value: tcp://localhost:2375
     - name: maven
