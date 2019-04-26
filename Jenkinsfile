@@ -104,8 +104,8 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
         }
       }
     }
-    stage('Build and Publish Image from other branches with tag') {
-      when { allOf { not { branch 'master' }; buildingTag() } }
+    stage('Build and Publish Image from other branches without tag') {
+      when { allOf { not { branch 'master' }; not { buildingTag() } } }
       steps {
         container('docker') {
             sh '''
