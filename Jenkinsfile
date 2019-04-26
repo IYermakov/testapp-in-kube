@@ -52,9 +52,6 @@ spec:
     }
   }
   stages {
-    void whateverFunction() {
-        sh 'ls /'
-    }
     stage('Run maven') {
       when { branch 'master' }
       steps {
@@ -94,6 +91,10 @@ spec:
       when { allOf { not { branch 'master' }; buildingTag() } }
       steps {
         container('docker') {
+            script {    void whateverFunction() {
+        sh 'ls /'
+    }
+}
             whateverFunction()
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
