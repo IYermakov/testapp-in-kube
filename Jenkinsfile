@@ -9,9 +9,9 @@ pipeline {
     GIT_TAG_COMMIT = sh (script: 'git describe --tags --always', returnStdout: true).trim()
   }
   agent {
-    scmVars = checkout scm
     kubernetes {
       label 'mypod'
+      scmVars = checkout scm
       yamlFile 'workerpod.yml'
     }
   }
