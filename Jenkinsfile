@@ -70,9 +70,9 @@ spec:
             echo ${DOCKERHUB_REPO}
             echo ${IMAGE}
             echo ${VERSION}
-            echo ${DOCKERHUB_REPO}/${IMAGE}:${VERSION}
             echo ${GIT_TAG_COMMIT}
             echo ${GIT_BRANCH}
+            echo ${DOCKERHUB_REPO}/${IMAGE}:${VERSION}
             """
             sh """
             docker build -t ${DOCKERHUB_REPO}/${IMAGE}:${VERSION} .
@@ -93,9 +93,9 @@ spec:
             echo ${DOCKERHUB_REPO}
             echo ${IMAGE}
             echo ${VERSION}
-            echo ${DOCKERHUB_REPO}/${IMAGE}:${VERSION}
             echo ${GIT_TAG_COMMIT}
             echo ${GIT_BRANCH}
+            echo ${DOCKERHUB_REPO}/${IMAGE}:${VERSION}
             """
             sh """
             docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${VERSION} .
