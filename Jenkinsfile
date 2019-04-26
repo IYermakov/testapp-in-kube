@@ -57,7 +57,6 @@ spec:
         container('maven') {
           sh 'mvn -Dmaven.test.failure.ignore clean package'
           sh 'printenv'
-          sh 'echo ${env.GIT_TAG_COMMIT}'
         }
       }
     }
@@ -72,6 +71,8 @@ spec:
             echo ${IMAGE}
             echo ${VERSION}
             echo ${DOCKERHUB_REPO}/${IMAGE}:${VERSION}
+            echo ${GIT_TAG_COMMIT}
+            echo ${GIT_BRANCH}
             """
             sh """
             docker build -t ${DOCKERHUB_REPO}/${IMAGE}:${VERSION} .
