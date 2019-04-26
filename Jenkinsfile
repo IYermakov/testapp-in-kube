@@ -33,8 +33,8 @@ spec:
       - cat
       tty: true
     - name: kubectl
-//      image: lachlanevenson/k8s-kubectl
-      image: dtzar/helm-kubectl
+      image: lachlanevenson/k8s-kubectl
+//      image: dtzar/helm-kubectl
       command:
       - cat
       tty: true
