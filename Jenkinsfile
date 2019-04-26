@@ -6,6 +6,7 @@ pipeline {
     DOCKERHUB_REPO = 'notregistered'
     IMAGE = 'dropw'
     GIT_TAG_COMMIT = sh (script: 'git describe --tags --always', returnStdout: true).trim()
+    G_TAG = buildingTag()
   }
   agent {
     kubernetes {
@@ -60,9 +61,9 @@ spec:
         }
       }
     }
-    stage('Build and Publish Image from master') {
+    stage('Build and Publish Image from master with tag') {
       when {
-        allOf { branch 'master'; tag "" }
+        allOf { branch 'master'; buildingTag() }
       }
       steps {
         container('docker') {
@@ -73,9 +74,25 @@ spec:
         }
       }
     }
+    stage('Build and Publish Image from master without tag') {
+      when {
+        allOf { branch 'master'; not { buildingTag() } }
+      }
+      steps {
+        container('docker') {
+            sh '''
+            docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${TAG_NAME} .
+            docker push ${DOCKERHUB_REPO}/${IMAGE}-${TAG_NAME}
+            '''
+        }
+      }
+    }
+
+
+
+
     stage('Build and Publish Image from other branches') {
       when { not { branch 'master' } }
-      when { tag "*" }
         steps {
          sh 'echo ${TAG_NAME}'
         }
