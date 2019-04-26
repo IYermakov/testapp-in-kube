@@ -8,7 +8,10 @@ pipeline {
     GIT_TAG_COMMIT = sh (script: 'git describe --tags --always', returnStdout: true).trim()
     G_TAG = buildingTag()
   }
-  agent {
+    void whateverFunction() {
+        sh 'ls /'
+    }
+    agent {
     kubernetes {
       label 'mypod'
         yaml """
@@ -87,12 +90,27 @@ spec:
         }
       }
     }
-    stage('Build and Publish Image from other branches') {
-      when { not { branch 'master' } }
+    stage('Build and Publish Image from other branches with tag') {
+      when { allOf { not { branch 'master' }; buildingTag() } }
+      steps {
+        container('docker') {
+            whateverFunction()
+            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
+usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
+                sh '''
+                    docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${TAG_NAME} .
+                    docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${TAG_NAME}
+                '''
+            }
+        }
+      }
+    }
+        stage('Build and Publish Image from other branches with tag') {
+      when { allOf { not { branch 'master' }; buildingTag() } }
       steps {
         container('docker') {
             sh '''
-                sh 'echo ${TAG_NAME}'
+                echo ${TAG_NAME}
                 echo ${DOCKERHUB_REPO}
                 echo ${IMAGE}
                 echo ${GIT_TAG_COMMIT}
