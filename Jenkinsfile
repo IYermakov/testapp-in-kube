@@ -89,18 +89,18 @@ spec:
       }
       steps {
         container('docker') {
-            sh """
+            sh '''
             echo ${DOCKERHUB_REPO}
             echo ${IMAGE}
             echo ${VERSION}
             echo ${GIT_TAG_COMMIT}
             echo ${GIT_BRANCH}
             echo ${DOCKERHUB_REPO}/${IMAGE}:${VERSION}
-            """
-            sh """
+            '''
+            sh '''
             docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${VERSION} .
             docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${VERSION}
-            """
+            '''
         }
       }
     }
