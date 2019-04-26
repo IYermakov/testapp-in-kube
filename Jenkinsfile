@@ -8,13 +8,10 @@ pipeline {
     GIT_TAG_COMMIT = sh (script: 'git describe --tags --always', returnStdout: true).trim()
     G_TAG = buildingTag()
   }
-    void whateverFunction() {
-        sh 'ls /'
-    }
-    agent {
-    kubernetes {
-      label 'mypod'
-        yaml """
+  agent {
+  kubernetes {
+    label 'mypod'
+    yaml """
 apiVersion: v1
 kind: Pod
 spec:
@@ -55,6 +52,9 @@ spec:
     }
   }
   stages {
+    void whateverFunction() {
+        sh 'ls /'
+    }
     stage('Run maven') {
       when { branch 'master' }
       steps {
