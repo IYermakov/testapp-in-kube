@@ -122,13 +122,13 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                 sh '''
-                    docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT} .
-                    docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
+                    docker build -t notregistered/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT} .
+                    docker push notregistered/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
                 '''
             }
         }
       }
     }
-    
+
   }
 }
