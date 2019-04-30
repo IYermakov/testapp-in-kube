@@ -126,6 +126,7 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                 sh '''
+                    docker info
                     docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}
                     docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT} .
                     docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
