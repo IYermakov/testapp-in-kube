@@ -126,7 +126,7 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                     docker network inspect curltest
                     docker inspect dropw-test
                     IP_FOR_CURL=`docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' dropw-test`
-                    docker run -i --network=curltest tutum/curl -e IP_FOR_CURL /bin/bash -c 'cat /etc/hosts && /usr/bin/curl --retry 10 --retry-delay 5 -v http://${IP_FOR_CURL}/hello-world'
+                    docker run -i --network=curltest tutum/curl -e IP_FOR_C=${IP_FOR_CURL} /bin/bash -c 'cat /etc/hosts && /usr/bin/curl --retry 10 --retry-delay 5 -v http://${IP_FOR_C}/hello-world'
 //                    docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
                 """
             }
