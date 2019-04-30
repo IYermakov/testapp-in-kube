@@ -17,7 +17,7 @@ kind: Pod
 spec:
   containers:
     - name: docker
-      image: docker
+      image: docker:latest
       command:
       - cat
       tty: true
@@ -115,7 +115,6 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                 sh """
-                    echo ${DOCKER_HOST}
                     docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}
                     docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT} .
 //                    docker network create --driver=bridge curltest
