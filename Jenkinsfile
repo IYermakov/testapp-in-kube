@@ -7,7 +7,6 @@ pipeline {
     DOCKERHUB_SERVER = 'https://index.docker.io/v1/'
     IMAGE = 'dropw'
     GIT_TAG_COMMIT = sh (script: 'git describe --tags --always', returnStdout: true).trim()
-    G_TAG = buildingTag()
   }
   agent {
   kubernetes {
@@ -127,7 +126,7 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                 sh '''
                     docker info
-                    docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}
+                    docker login -u ${DOCKER_USER} -p "${DOCKER_PASSWORD}" ${DOCKERHUB_SERVER}
                     docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT} .
                     docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
                 '''
