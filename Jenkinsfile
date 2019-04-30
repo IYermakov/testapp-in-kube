@@ -4,13 +4,14 @@ pipeline {
   }
   environment {
     DOCKERHUB_REPO = 'notregistered'
+    DOCKERHUB_SERVER = 'https://index.docker.io/v1/'
     IMAGE = 'dropw'
-    VERSION = '${env.GIT_COMMIT}'
+    GIT_TAG_COMMIT = sh (script: 'git describe --tags --always', returnStdout: true).trim()
   }
   agent {
-    kubernetes {
-      label 'mypod'
-      yaml """
+  kubernetes {
+    label 'mypod'
+    yaml """
 apiVersion: v1
 kind: Pod
 spec:
@@ -52,24 +53,87 @@ spec:
   }
   stages {
     stage('Run maven') {
+//      when { branch 'master' }
       steps {
         container('maven') {
           sh 'mvn -Dmaven.test.failure.ignore clean package'
+          sh 'printenv'
         }
       }
     }
-    stage('Build and Publish Image') {
+
+    stage('Build and Publish Image from master with tag') {
       when {
-        branch 'master'
+        allOf { branch 'master'; buildingTag() }
       }
       steps {
         container('docker') {
-            sh """
-            docker build -t ${DOCKERHUB_REPO}/${IMAGE}:${VERSION} .
-            docker push ${DOCKERHUB_REPO}/${IMAGE}:${VERSION}
-            """
+            sh '''
+                docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}
+                docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${TAG_NAME} .
+                docker push ${DOCKERHUB_REPO}/${IMAGE}-${TAG_NAME}
+            '''
         }
       }
     }
+
+    stage('Build and Publish Image from master without tag') {
+      when {
+        allOf { branch 'master'; not { buildingTag() } }
+      }
+      steps {
+        container('docker') {
+            sh '''
+                docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}
+                docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_TAG_COMMIT} .
+                docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_TAG_COMMIT}
+            '''
+        }
+      }
+    }
+
+    stage('Build and Publish Image from other branches with tag') {
+      when { allOf { not { branch 'master' }; buildingTag() } }
+      steps {
+        container('docker') {
+            sh '''
+                echo ${GIT_BRANCH}
+                echo ${TAG_NAME}
+                echo ${GIT_TAG_COMMIT}
+            '''
+            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
+usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
+                sh '''
+                    docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}
+                    docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${TAG_NAME} .
+                    docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${TAG_NAME}
+                '''
+            }
+        }
+      }
+    }
+
+    stage('Build and Publish Image from other branches without tag') {
+      when { allOf { not { branch 'master' }; not { buildingTag() } } }
+      steps {
+        container('docker') {
+            sh '''
+                echo ${GIT_BRANCH}
+                echo ${TAG_NAME}
+                echo ${GIT_TAG_COMMIT}
+            '''
+            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
+usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
+                sh """
+                    docker info
+                    docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}
+                    docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT} .
+                    docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
+                """
+            }
+        }
+      }
+    }
+
   }
 }
