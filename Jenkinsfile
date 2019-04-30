@@ -124,7 +124,7 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                     docker run -d --network=curltest --name=dropw-test ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
                     docker ps
                     docker network inspect curltest
-                    docker run -i --network=curltest appropriate/curl /bin/bash -c 'cat /etc/hosts && /usr/bin/curl --retry 10 --retry-delay 5 -v http://dropw-test/hello-world'
+                    docker run -i --network=curltest tutum/curl /bin/bash -c 'cat /etc/hosts && /usr/bin/curl --retry 10 --retry-delay 5 -v http://dropw-test/hello-world'
 //                    docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
                 """
             }
