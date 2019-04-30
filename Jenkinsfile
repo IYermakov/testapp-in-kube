@@ -53,7 +53,7 @@ spec:
   }
   stages {
     stage('Run maven') {
-      when { branch 'master' }
+//      when { branch 'master' }
       steps {
         container('maven') {
           sh 'mvn -Dmaven.test.failure.ignore clean package'
@@ -81,8 +81,8 @@ spec:
       steps {
         container('docker') {
             sh '''
-            docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${TAG_NAME} .
-            docker push ${DOCKERHUB_REPO}/${IMAGE}-${TAG_NAME}
+            docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_TAG_COMMIT} .
+            docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_TAG_COMMIT}
             '''
         }
       }
@@ -110,18 +110,34 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
       steps {
         container('docker') {
             sh '''
-                echo ${DOCKERHUB_REPO}
-                echo ${IMAGE}
-                echo ${GIT_TAG_COMMIT}
                 echo ${GIT_BRANCH}
-                echo ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
                 echo ${TAG_NAME}
+                echo ${GIT_TAG_COMMIT}
             '''
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                 sh '''
                     docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT} .
                     docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
+                '''
+            }
+        }
+      }
+    }
+    stage('Build and Publish Image from other branches without tag') {
+      when { allOf { not { branch 'master' }; buildingTag() } }
+      steps {
+        container('docker') {
+            sh '''
+                echo ${GIT_BRANCH}
+                echo ${TAG_NAME}
+                echo ${GIT_TAG_COMMIT}
+            '''
+            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
+usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
+                sh '''
+                    docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${TAG_NAME} .
+                    docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${TAG_NAME}
                 '''
             }
         }
