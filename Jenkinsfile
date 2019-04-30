@@ -61,6 +61,7 @@ spec:
         }
       }
     }
+
     stage('Build and Publish Image from master with tag') {
       when {
         allOf { branch 'master'; buildingTag() }
@@ -74,6 +75,7 @@ spec:
         }
       }
     }
+
     stage('Build and Publish Image from master without tag') {
       when {
         allOf { branch 'master'; not { buildingTag() } }
@@ -127,26 +129,6 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
         }
       }
     }
-
-    stage('Build and Publish Image from other branches with tag') {
-      when { allOf { not { branch 'master' }; buildingTag() } }
-      steps {
-        container('docker') {
-            sh '''
-                echo ${GIT_BRANCH}
-                echo ${G_TAG}
-                echo ${TAG_NAME}
-            '''
-            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
-usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
-                sh '''
-                    docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${TAG_NAME} .
-                    docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${TAG_NAME}
-                '''
-            }
-        }
-      }
-    }
-
+    
   }
 }
