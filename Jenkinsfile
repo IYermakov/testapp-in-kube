@@ -69,8 +69,9 @@ spec:
       steps {
         container('docker') {
             sh '''
-            docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${TAG_NAME} .
-            docker push ${DOCKERHUB_REPO}/${IMAGE}-${TAG_NAME}
+                docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
+                docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${TAG_NAME} .
+                docker push ${DOCKERHUB_REPO}/${IMAGE}-${TAG_NAME}
             '''
         }
       }
@@ -83,8 +84,9 @@ spec:
       steps {
         container('docker') {
             sh '''
-            docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_TAG_COMMIT} .
-            docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_TAG_COMMIT}
+                docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
+                docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_TAG_COMMIT} .
+                docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_TAG_COMMIT}
             '''
         }
       }
@@ -102,6 +104,7 @@ spec:
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                 sh '''
+                    docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
                     docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${TAG_NAME} .
                     docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${TAG_NAME}
                 '''
@@ -122,8 +125,9 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                 sh '''
-                    docker build -t notregistered/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT} .
-                    docker push notregistered/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
+                    docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
+                    docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT} .
+                    docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
                 '''
             }
         }
