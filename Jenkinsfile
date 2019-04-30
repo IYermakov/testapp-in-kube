@@ -57,7 +57,7 @@ spec:
       steps {
         container('maven') {
           sh 'mvn -Dmaven.test.failure.ignore clean package'
-          sh 'printenv'
+//          sh 'printenv'
         }
       }
     }
@@ -68,11 +68,11 @@ spec:
       }
       steps {
         container('docker') {
-            sh '''
+            sh """
                 docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}
                 docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${TAG_NAME} .
                 docker push ${DOCKERHUB_REPO}/${IMAGE}-${TAG_NAME}
-            '''
+            """
         }
       }
     }
@@ -83,11 +83,11 @@ spec:
       }
       steps {
         container('docker') {
-            sh '''
+            sh """
                 docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}
                 docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_TAG_COMMIT} .
                 docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_TAG_COMMIT}
-            '''
+            """
         }
       }
     }
@@ -96,18 +96,13 @@ spec:
       when { allOf { not { branch 'master' }; buildingTag() } }
       steps {
         container('docker') {
-            sh '''
-                echo ${GIT_BRANCH}
-                echo ${TAG_NAME}
-                echo ${GIT_TAG_COMMIT}
-            '''
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
-                sh '''
+                sh """
                     docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}
                     docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${TAG_NAME} .
                     docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${TAG_NAME}
-                '''
+                """
             }
         }
       }
@@ -117,17 +112,14 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
       when { allOf { not { branch 'master' }; not { buildingTag() } } }
       steps {
         container('docker') {
-            sh '''
-                echo ${GIT_BRANCH}
-                echo ${TAG_NAME}
-                echo ${GIT_TAG_COMMIT}
-            '''
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                 sh """
-                    docker info
                     docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}
                     docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT} .
+                    docker network create --driver=bridge curltest
+                    docker run -d --name=dropw-test --net=curltest ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
+                    docker run -i --net=curltest appropriate/curl /usr/bin/curl http://dropw-test:8080/hello-world
                     docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
                 """
             }
