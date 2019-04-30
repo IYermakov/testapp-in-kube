@@ -53,7 +53,7 @@ spec:
   }
   stages {
     stage('Run maven') {
-//      when { branch 'master' }
+      when { branch 'master' }
       steps {
         container('maven') {
           sh 'mvn -Dmaven.test.failure.ignore clean package'
@@ -115,6 +115,7 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                 sh """
+                    echo ${DOCKER_HOST}
                     docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}
                     docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT} .
                     docker network create --driver=bridge curltest
@@ -122,7 +123,7 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                     docker run -d --net=curltest --name=dropw-test --dns=${DOCKER_HOST} ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
                     docker ps
                     docker network inspect curltest
-                    docker run -i --net=curltest --dns=${DOCKER_HOST} appropriate/curl /usr/bin/curl --retry 10 --retry-delay 5 -v http://dropw-test/hello-world
+                    docker run -i --net=curltest --dns=${env.DOCKER_HOST} appropriate/curl /usr/bin/curl --retry 10 --retry-delay 5 -v http://dropw-test/hello-world
 //                    docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
                 """
             }
