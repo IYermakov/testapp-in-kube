@@ -133,6 +133,7 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
       steps {
         container('docker') {
             sh '''
+                echo ${GIT_BRANCH}
                 echo ${G_TAG}
                 echo ${TAG_NAME}
             '''
