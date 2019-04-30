@@ -87,13 +87,15 @@ spec:
         }
       }
     }
+
     stage('Build and Publish Image from other branches with tag') {
       when { allOf { not { branch 'master' }; buildingTag() } }
       steps {
         container('docker') {
             sh '''
-                echo ${G_TAG}
+                echo ${GIT_BRANCH}
                 echo ${TAG_NAME}
+                echo ${GIT_TAG_COMMIT}
             '''
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
@@ -105,6 +107,7 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
         }
       }
     }
+
     stage('Build and Publish Image from other branches without tag') {
       when { allOf { not { branch 'master' }; not { buildingTag() } } }
       steps {
@@ -124,14 +127,14 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
         }
       }
     }
-    stage('Build and Publish Image from other branches without tag') {
+
+    stage('Build and Publish Image from other branches with tag') {
       when { allOf { not { branch 'master' }; buildingTag() } }
       steps {
         container('docker') {
             sh '''
-                echo ${GIT_BRANCH}
+                echo ${G_TAG}
                 echo ${TAG_NAME}
-                echo ${GIT_TAG_COMMIT}
             '''
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
@@ -143,5 +146,6 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
         }
       }
     }
+
   }
 }
