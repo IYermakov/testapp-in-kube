@@ -4,6 +4,7 @@ pipeline {
   }
   environment {
     DOCKERHUB_REPO = 'notregistered'
+    DOCKERHUB_SERVER = 'https://index.docker.io/v1/'
     IMAGE = 'dropw'
     GIT_TAG_COMMIT = sh (script: 'git describe --tags --always', returnStdout: true).trim()
     G_TAG = buildingTag()
@@ -69,7 +70,7 @@ spec:
       steps {
         container('docker') {
             sh '''
-                docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
+                docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}
                 docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${TAG_NAME} .
                 docker push ${DOCKERHUB_REPO}/${IMAGE}-${TAG_NAME}
             '''
@@ -84,7 +85,7 @@ spec:
       steps {
         container('docker') {
             sh '''
-                docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
+                docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}
                 docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_TAG_COMMIT} .
                 docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_TAG_COMMIT}
             '''
@@ -104,7 +105,7 @@ spec:
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                 sh '''
-                    docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
+                    docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}
                     docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${TAG_NAME} .
                     docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${TAG_NAME}
                 '''
@@ -125,7 +126,7 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                 sh '''
-                    docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
+                    docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}
                     docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT} .
                     docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
                 '''
