@@ -166,7 +166,7 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
   }
   post {
     success {
-        mail to: '${authorEmail}',
+        mail to: 'notregisterednick@gmail.com',
         subject: "Failed Pipeline: ${currentBuild.fullDisplayName}",
         body: "Hey, {authorDisplayName}. ${env.BUILD_URL} is success."
     }
