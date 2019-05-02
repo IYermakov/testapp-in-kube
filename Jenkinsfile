@@ -125,7 +125,7 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                     docker ps
                     docker network inspect curltest
                     docker inspect dropw-test
-                    docker run -i --network=curltest tutum/curl /bin/bash -c 'ping dropw-test && /usr/bin/curl --retry 10 --retry-delay 5 -v http://dropw-test/hello-world'
+                    docker run -i --network=curltest --link=dropw-test tutum/curl /bin/bash -c 'ping dropw-test && /usr/bin/curl --retry 10 --retry-delay 5 -v http://dropw-test/hello-world'
 //                    docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
                 """
             }
