@@ -29,7 +29,7 @@ spec:
       - name: DOCKER_HOST
         value: tcp://localhost:2375
     - name: maven
-      image: maven:latest
+      image: maven:3.5.2
       command:
       - cat
       tty: true
@@ -121,11 +121,11 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                     docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT} .
                     docker network create --driver=bridge curltest
                     docker network ls
-                    docker run -d --network=curltest --name=dropw-test ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
+                    docker run -d --network=curltest --name='dropw-test' ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
                     docker ps
                     docker network inspect curltest
                     docker inspect dropw-test
-                    docker run -i --network=curltest --link=dropw-test tutum/curl /bin/bash -c 'ping -c1 dropw-test && /usr/bin/curl --retry 10 --retry-delay 5 -v http://dropw-test/hello-world'
+                    docker run -i --network=curltest tutum/curl /bin/bash -c 'ping -c1 dropw-test && /usr/bin/curl --retry 10 --retry-delay 5 -v http://dropw-test/hello-world'
 //                    docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
                 """
             }
