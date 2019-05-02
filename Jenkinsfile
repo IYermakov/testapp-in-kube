@@ -62,10 +62,15 @@ spec:
 
     stage('Preparation') {
         steps{
-            sh """
-                docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}
-                docker network create --driver=bridge curltest
-            """
+            container('docker') {
+                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
+usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
+                    sh """
+                        docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}
+                        docker network create --driver=bridge curltest
+                    """
+                }
+            }
         }
     }
 
