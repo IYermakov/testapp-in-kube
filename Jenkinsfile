@@ -99,7 +99,7 @@ spec:
     }
 
     stage('Build and Publish Image from other branches with tag') {
-      when { allOf { not { branch 'master' }; buildingTag() } }
+      when { allOf { not { branch 'master' }; buildingTag(); not {  changeRequest() } } }
       steps {
         container('docker') {
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
@@ -116,6 +116,25 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
         }
       }
     }
+
+    stage('Build and Publish Image from other branches with tag') {
+      when { allOf { not { branch 'master' }; buildingTag(); changeRequest() } }
+      steps {
+        container('docker') {
+            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
+usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
+                sh """
+                    docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}
+                    docker build -t ${DOCKERHUB_REPO}/${IMAGE}-pr-${CHANGE_ID}:${TAG_NAME} .
+                    docker network create --driver=bridge curltest
+                    docker run -d --network=curltest --name='dropw-test' ${DOCKERHUB_REPO}/${IMAGE}-pr-${CHANGE_ID}:${TAG_NAME}
+                    docker run -i --network=curltest tutum/curl /bin/bash -c '/usr/bin/curl --retry 10 --retry-delay 5 -v http://dropw-test:8080/hello-world'
+                """
+            }
+        }
+      }
+    }
+
 
     stage('Build and Publish Image from other branches without tag') {
       when { allOf { not { branch 'master' }; not { buildingTag() } } }
