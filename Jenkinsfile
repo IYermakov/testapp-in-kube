@@ -53,13 +53,20 @@ spec:
   }
   stages {
     stage('Run maven') {
-//      when { branch 'master' }
       steps {
         container('maven') {
           sh 'mvn -Dmaven.test.failure.ignore clean package'
-//          sh 'printenv'
         }
       }
+    }
+
+    stage('Preparation') {
+        steps{
+            sh """
+                docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}
+                docker network create --driver=bridge curltest
+            """
+        }
     }
 
     stage('PR Build') {
@@ -69,9 +76,7 @@ spec:
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                 sh """
-                    docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}
                     docker build -t ${DOCKERHUB_REPO}/${IMAGE}-pr:${CHANGE_ID} .
-                    docker network create --driver=bridge curltest
                     docker run -d --network=curltest --name='dropw-test' ${DOCKERHUB_REPO}/${IMAGE}-pr:${CHANGE_ID}
                     docker run -i --network=curltest tutum/curl /bin/bash -c '/usr/bin/curl --retry 10 --retry-delay 5 -v http://dropw-test:8080/hello-world'
                 """
@@ -89,14 +94,12 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
 
     stage('Build and Publish Image from master with tag') {
       when {
-        allOf { branch 'master'; buildingTag() }
+        allOf { branch 'master'; buildingTag(); not { changeRequest() }  }
       }
       steps {
         container('docker') {
             sh """
-                docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}
                 docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${TAG_NAME} .
-                docker network create --driver=bridge curltest
                 docker run -d --network=curltest --name='dropw-test' ${DOCKERHUB_REPO}/${IMAGE}:${TAG_NAME}
                 docker run -i --network=curltest tutum/curl /bin/bash -c '/usr/bin/curl --retry 10 --retry-delay 5 -v http://dropw-test:8080/hello-world'
                 docker push ${DOCKERHUB_REPO}/${IMAGE}-${TAG_NAME}
@@ -107,14 +110,12 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
 
     stage('Build and Publish Image from master without tag') {
       when {
-        allOf { branch 'master'; not { buildingTag() } }
+        allOf { branch 'master'; not { buildingTag() }; not { changeRequest() } }
       }
       steps {
         container('docker') {
             sh """
-                docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}
                 docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_TAG_COMMIT} .
-                docker network create --driver=bridge curltest
                 docker run -d --network=curltest --name='dropw-test' ${DOCKERHUB_REPO}/${IMAGE}:${GIT_TAG_COMMIT}
                 docker run -i --network=curltest tutum/curl /bin/bash -c '/usr/bin/curl --retry 10 --retry-delay 5 -v http://dropw-test:8080/hello-world'
                 docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_TAG_COMMIT}
@@ -124,15 +125,13 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
     }
 
     stage('Build and Publish Image from other branches with tag') {
-      when { allOf { not { branch 'master' }; buildingTag(); not {  changeRequest() } } }
+      when { allOf { not { branch 'master' }; buildingTag(); not { changeRequest() } } }
       steps {
         container('docker') {
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                 sh """
-                    docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}
                     docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${TAG_NAME} .
-                    docker network create --driver=bridge curltest
                     docker run -d --network=curltest --name='dropw-test' ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${TAG_NAME}
                     docker run -i --network=curltest tutum/curl /bin/bash -c '/usr/bin/curl --retry 10 --retry-delay 5 -v http://dropw-test:8080/hello-world'
                     docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${TAG_NAME}
@@ -143,18 +142,15 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
     }
 
     stage('Build and Publish Image from other branches without tag') {
-      when { allOf { not { branch 'master' }; not { buildingTag() } } }
+      when { allOf { not { branch 'master' }; not { buildingTag() }; not { changeRequest() } } }
       steps {
         container('docker') {
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                 sh """
-                    docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}
                     docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT} .
-                    docker network create --driver=bridge curltest
                     docker run -d --network=curltest --name='dropw-test' ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
                     docker run -i --network=curltest tutum/curl /bin/bash -c '/usr/bin/curl --retry 10 --retry-delay 5 -v http://dropw-test:8080/hello-world'
-                    docker info
                     docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
                 """
             }
