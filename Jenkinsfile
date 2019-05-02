@@ -164,11 +164,11 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
     }
 
   }
-  post {
+/*  post {
     success {
-        mail to: 'notregisterednick@gmail.com',
+        mail to: '${authorEmail}',
         subject: "Failed Pipeline: ${currentBuild.fullDisplayName}",
         body: "Hey, {authorDisplayName}. ${env.BUILD_URL} is success."
     }
-  }
+  }*/
 }
