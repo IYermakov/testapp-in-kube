@@ -1,4 +1,4 @@
-FROM openjdk:8-jre-alpine
+FROM openjdk:13-alpine
 WORKDIR /
 ADD target/dropwizard-example-0.0.1-SNAPSHOT.jar dropwizard.jar
 ADD example.yml example.yml
