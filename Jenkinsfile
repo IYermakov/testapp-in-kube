@@ -77,10 +77,6 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
       when { buildingTag() }
       steps {
         sh """
-            if (${GIT_BRANCH} == "master") {
-                IMAGE_NAME="${DOCKERHUB_REPO}/${IMAGE}"
-            }
-            else { IMAGE_NAME="${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}" }
             IMAGE_TAG="${TAG_NAME}"
         """
       }
@@ -104,7 +100,7 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
         failure {
             mail to: '${authorEmail}',
             subject: "Failed Pipeline: ${currentBuild.fullDisplayName}",
-            body: "Hey, {authorDisplayName}. ${env.BUILD_URL} failure. Check it."
+            body: "Hey, {authorDisplayName}. Your ${env.BUILD_URL} failure. Check it."
         }
       }*/
     }
@@ -116,9 +112,15 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                 sh """
+                    if (${GIT_BRANCH} == "master") {
+                        IMAGE_NAME="${DOCKERHUB_REPO}/${IMAGE}"
+                    }
+                    else { IMAGE_NAME="${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}" }
+
                     if (${IMAGE_TAG}==null) {
                         IMAGE_TAG="${GIT_TAG_COMMIT}"
                     }
+
                     docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
                     docker run -d --network=curltest --name='dropw-test' ${IMAGE_NAME}:${IMAGE_TAG}
                     docker run -i --network=curltest tutum/curl /bin/bash -c '/usr/bin/curl --retry 10 --retry-delay 1 -v http://dropw-test:8080/hello-world'
