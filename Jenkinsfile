@@ -73,7 +73,7 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
             }
         }
     }
-    stage('Setting variables =\') {
+    stage('Setting variables ') {
       when { buildingTag() }
       steps {
         sh """
