@@ -105,7 +105,7 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                     }
                     else { IMAGE_NAME="${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}" }
 
-                    if (TAG_NAME) {
+                    if (envVars.containsKey("TAG_NAME")) {
                         IMAGE_TAG="${TAG_NAME}"
                     }
                     else { IMAGE_TAG="${GIT_TAG_COMMIT}" }
