@@ -110,7 +110,7 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
     }
 
     stage('Regular docker build') {
-      when { not { changeRequest() }; buildingTag() }
+      when { not { changeRequest() }}
       steps {
         container('docker') {
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
