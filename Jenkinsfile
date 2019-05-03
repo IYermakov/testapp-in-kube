@@ -77,7 +77,7 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
       when { buildingTag() }
       steps {
         sh """
-            IMAGE_TAG="${TAG_NAME}"
+            def IMAGE_TAG="${TAG_NAME}"
         """
       }
     }
