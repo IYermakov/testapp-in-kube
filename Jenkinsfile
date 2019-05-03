@@ -73,9 +73,18 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
             }
         }
     }
-
-//    stage ('Build docker image') {
-//    parallel {
+    stage('Setting variables =\') {
+      when { buildingTag() }
+      steps {
+        sh """
+            if (${GIT_BRANCH} == "master") {
+                IMAGE_NAME="${DOCKERHUB_REPO}/${IMAGE}"
+            }
+            else { IMAGE_NAME="${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}" }
+            IMAGE_TAG="${TAG_NAME}"
+        """
+      }
+    }
 
     stage('PR docker build') {
       when { changeRequest target: 'master' }
@@ -101,22 +110,15 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
     }
 
     stage('Regular docker build') {
-      when { not { changeRequest() } }
+      when { not { changeRequest() }; buildingTag() }
       steps {
         container('docker') {
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                 sh """
-                    if (${GIT_BRANCH} == "master") {
-                        IMAGE_NAME="${DOCKERHUB_REPO}/${IMAGE}"
+                    if (${IMAGE_TAG}==null) {
+                        IMAGE_TAG="${GIT_TAG_COMMIT}"
                     }
-                    else { IMAGE_NAME="${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}" }
-
-                    if (${TAG_NAME}!=NULL) {
-                        IMAGE_TAG="${TAG_NAME}"
-                    }
-                    else { IMAGE_TAG="${GIT_TAG_COMMIT}" }
-
                     docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
                     docker run -d --network=curltest --name='dropw-test' ${IMAGE_NAME}:${IMAGE_TAG}
                     docker run -i --network=curltest tutum/curl /bin/bash -c '/usr/bin/curl --retry 10 --retry-delay 1 -v http://dropw-test:8080/hello-world'
@@ -126,10 +128,6 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
         }
       }
     }
-
-//    }
-//    }
-
 
   }
 }
