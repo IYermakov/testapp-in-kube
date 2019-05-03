@@ -105,10 +105,10 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                     }
                     else { IMAGE_NAME="${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}" }
 
-                    if (${TAG_NAME} == null) {
-                        IMAGE_TAG="${GIT_TAG_COMMIT}"
+                    if (TAG_NAME) {
+                        IMAGE_TAG="${TAG_NAME}"
                     }
-                    else { IMAGE_TAG="${TAG_NAME}" }
+                    else { IMAGE_TAG="${GIT_TAG_COMMIT}" }
 
                     docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
                     docker run -d --network=curltest --name='dropw-test' ${IMAGE_NAME}:${IMAGE_TAG}
