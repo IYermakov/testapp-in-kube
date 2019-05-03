@@ -6,6 +6,8 @@ pipeline {
     DOCKERHUB_REPO = 'notregistered'
     DOCKERHUB_SERVER = 'https://index.docker.io/v1/'
     IMAGE = 'dropw'
+    IMAGE_NAME = 'dropw'
+    IMAGE_TAG = 'latest'
     GIT_TAG_COMMIT = sh (script: 'git describe --tags --always', returnStdout: true).trim()
   }
   agent {
@@ -77,7 +79,7 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
       when { buildingTag() }
       steps {
         sh """
-            def IMAGE_TAG="${TAG_NAME}"
+            IMAGE_TAG = "${TAG_NAME}"
         """
       }
     }
