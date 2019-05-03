@@ -91,6 +91,13 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
             }
         }
       }
+      /*post {
+        failure {
+            mail to: '${authorEmail}',
+            subject: "Failed Pipeline: ${currentBuild.fullDisplayName}",
+            body: "Hey, {authorDisplayName}. ${env.BUILD_URL} failure. Check it."
+        }
+      }*/
     }
 
     stage('Regular docker build') {
@@ -105,6 +112,7 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                     }
                     else { IMAGE_NAME="${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}" }
 
+                    envVars = env.getEnvironment()
                     if (envVars.containsKey("TAG_NAME")) {
                         IMAGE_TAG="${TAG_NAME}"
                     }
@@ -124,11 +132,4 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
 //    }
 
   }
-/*  post {
-    success {
-        mail to: '${authorEmail}',
-        subject: "Failed Pipeline: ${currentBuild.fullDisplayName}",
-        body: "Hey, {authorDisplayName}. ${env.BUILD_URL} is success."
-    }
-  }*/
 }
