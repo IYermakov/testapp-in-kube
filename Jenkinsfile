@@ -104,24 +104,24 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
 
     stage('Regular docker build') {
       when { not { changeRequest() } }
-      steps {
-        container('docker') {
-            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
+        steps {
+            container('docker') {
+                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
-                sh """
-                    IMAGE_NAME = (${GIT_BRANCH}=='master') ? ${DOCKERHUB_REPO}/${IMAGE} : ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}
-                    if (${IMAGE_TAG}==null) {
-                        IMAGE_TAG=${GIT_TAG_COMMIT}
-                    }
+                    sh """
+                        IMAGE_NAME = ("${GIT_BRANCH}"=='master') ? "${DOCKERHUB_REPO}/${IMAGE}" : "${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}"
+                        if (${IMAGE_TAG}==null) {
+                            IMAGE_TAG=${GIT_TAG_COMMIT}
+                        }
 
-                    docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
-                    docker run -d --network=curltest --name='dropw-test' ${IMAGE_NAME}:${IMAGE_TAG}
-                    docker run -i --network=curltest tutum/curl /bin/bash -c '/usr/bin/curl --retry 10 --retry-delay 1 -v http://dropw-test:8080/hello-world'
-                    docker push ${IMAGE_NAME}:${IMAGE_TAG}
-                """
+                        docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                        docker run -d --network=curltest --name='dropw-test' ${IMAGE_NAME}:${IMAGE_TAG}
+                        docker run -i --network=curltest tutum/curl /bin/bash -c '/usr/bin/curl --retry 10 --retry-delay 1 -v http://dropw-test:8080/hello-world'
+                        docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                    """
+                }
             }
-        }
-      }
+       }
     }
 
   }
