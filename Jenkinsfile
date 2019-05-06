@@ -55,8 +55,10 @@ spec:
   }
   stages {
     stage('Run maven') {
+//      when { branch 'master' }
       steps {
         container('maven') {
+//          sh 'mvn -Dmaven.test.failure.ignore clean package'
           sh 'mvn -Dmaven.test.failure.ignore clean package'
         }
       }
@@ -98,13 +100,6 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
             }
         }
       }
-      /*post {
-        failure {
-            mail to: '${authorEmail}',
-            subject: "Failed Pipeline: ${currentBuild.fullDisplayName}",
-            body: "Hey, {authorDisplayName}. Your ${env.BUILD_URL} failure. Check it."
-        }
-      }*/
     }
 
     stage('Regular docker build') {
