@@ -59,7 +59,7 @@ spec:
       steps {
         container('maven') {
 //          sh 'mvn -Dmaven.test.failure.ignore clean package'
-          sh 'mvn -Dmaven.test.failure.ignore clean package'
+          sh 'mvn -Dmaven.test.failure.ignore package'
         }
       }
     }
@@ -103,19 +103,15 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
     }
 
     stage('Regular docker build') {
-      when { not { changeRequest() }}
+      when { not { changeRequest() } }
       steps {
         container('docker') {
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                 sh """
-                    if (${GIT_BRANCH} == "master") {
-                        IMAGE_NAME="${DOCKERHUB_REPO}/${IMAGE}"
-                    }
-                    else { IMAGE_NAME="${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}" }
-
+                    IMAGE_NAME = (${GIT_BRANCH}=='master') ? ${DOCKERHUB_REPO}/${IMAGE} : ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}
                     if (${IMAGE_TAG}==null) {
-                        IMAGE_TAG="${GIT_TAG_COMMIT}"
+                        IMAGE_TAG=${GIT_TAG_COMMIT}
                     }
 
                     docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
