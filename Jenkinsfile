@@ -110,10 +110,11 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                     script {
                         IMAGE_NAME = ("${GIT_BRANCH}"=='master') ? "${DOCKERHUB_REPO}/${IMAGE}" : "${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}"
-                        docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
-                        docker run -d --network=curltest --name='dropw-test' ${IMAGE_NAME}:${IMAGE_TAG}
+                        IMAGE_TAG = (${IMAGE_TAG}==null) ? ${GIT_TAG_COMMIT
+                        docker build -t "${IMAGE_NAME}:${IMAGE_TAG}" .
+                        docker run -d --network=curltest --name='dropw-test' "${IMAGE_NAME}:${IMAGE_TAG}"
                         docker run -i --network=curltest tutum/curl /bin/bash -c '/usr/bin/curl --retry 10 --retry-delay 1 -v http://dropw-test:8080/hello-world'
-                        docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                        docker push "${IMAGE_NAME}:${IMAGE_TAG}"
                     }
                 }
             }
