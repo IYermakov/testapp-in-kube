@@ -6,6 +6,8 @@ pipeline {
     DOCKERHUB_REPO = 'notregistered'
     DOCKERHUB_SERVER = 'https://index.docker.io/v1/'
     IMAGE = 'dropw'
+    IMAGE_NAME = 'dropw'
+    IMAGE_TAG = 'latest'
     GIT_TAG_COMMIT = sh (script: 'git describe --tags --always', returnStdout: true).trim()
   }
   agent {
@@ -53,9 +55,11 @@ spec:
   }
   stages {
     stage('Run maven') {
+//      when { branch 'master' }
       steps {
         container('maven') {
-          sh 'mvn -Dmaven.test.failure.ignore clean package'
+//          sh 'mvn -Dmaven.test.failure.ignore clean package'
+          sh 'mvn -Dmaven.test.failure.ignore package'
         }
       }
     }
@@ -73,8 +77,16 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
             }
         }
     }
+    stage('Setting variables ') {
+      when { buildingTag() }
+      steps {
+        sh """
+            IMAGE_TAG = "${TAG_NAME}"
+        """
+      }
+    }
 
-    stage('PR Build') {
+    stage('PR docker build') {
       when { changeRequest target: 'master' }
       steps {
         container('docker') {
@@ -83,92 +95,35 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                 sh """
                     docker build -t ${DOCKERHUB_REPO}/${IMAGE}-pr:${CHANGE_ID} .
                     docker run -d --network=curltest --name='dropw-test' ${DOCKERHUB_REPO}/${IMAGE}-pr:${CHANGE_ID}
-                    docker run -i --network=curltest tutum/curl /bin/bash -c '/usr/bin/curl --retry 10 --retry-delay 5 -v http://dropw-test:8080/hello-world'
+                    docker run -i --network=curltest tutum/curl /bin/bash -c '/usr/bin/curl --retry 10 --retry-delay 1 -v http://dropw-test:8080/hello-world'
                 """
             }
         }
       }
-      post {
-         failure {
-            mail to: '${authorEmail}',
-            subject: "Failed Pipeline: ${currentBuild.fullDisplayName}",
-            body: "Hey, {authorDisplayName}. Something is wrong with ${env.BUILD_URL}. Check it."
-         }
-      }
     }
 
-    stage('Build and Publish Image from master with tag') {
-      when {
-        allOf { branch 'master'; buildingTag(); not { changeRequest() }  }
-      }
-      steps {
-        container('docker') {
-            sh """
-                docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${TAG_NAME} .
-                docker run -d --network=curltest --name='dropw-test' ${DOCKERHUB_REPO}/${IMAGE}:${TAG_NAME}
-                docker run -i --network=curltest tutum/curl /bin/bash -c '/usr/bin/curl --retry 10 --retry-delay 5 -v http://dropw-test:8080/hello-world'
-                docker push ${DOCKERHUB_REPO}/${IMAGE}-${TAG_NAME}
-            """
-        }
-      }
-    }
-
-    stage('Build and Publish Image from master without tag') {
-      when {
-        allOf { branch 'master'; not { buildingTag() }; not { changeRequest() } }
-      }
-      steps {
-        container('docker') {
-            sh """
-                docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_TAG_COMMIT} .
-                docker run -d --network=curltest --name='dropw-test' ${DOCKERHUB_REPO}/${IMAGE}:${GIT_TAG_COMMIT}
-                docker run -i --network=curltest tutum/curl /bin/bash -c '/usr/bin/curl --retry 10 --retry-delay 5 -v http://dropw-test:8080/hello-world'
-                docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_TAG_COMMIT}
-            """
-        }
-      }
-    }
-
-    stage('Build and Publish Image from other branches with tag') {
-      when { allOf { not { branch 'master' }; buildingTag(); not { changeRequest() } } }
-      steps {
-        container('docker') {
-            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
+    stage('Regular docker build') {
+      when { not { changeRequest() } }
+        steps {
+            container('docker') {
+                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
-                sh """
-                    docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${TAG_NAME} .
-                    docker run -d --network=curltest --name='dropw-test' ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${TAG_NAME}
-                    docker run -i --network=curltest tutum/curl /bin/bash -c '/usr/bin/curl --retry 10 --retry-delay 5 -v http://dropw-test:8080/hello-world'
-                    docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${TAG_NAME}
-                """
+                    script {
+                        IMAGE_NAME = ("${GIT_BRANCH}"=='master') ? "${DOCKERHUB_REPO}/${IMAGE}" : "${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}"
+                        if ("${IMAGE_TAG}"==null) {
+                            IMAGE_TAG="${GIT_TAG_COMMIT}"
+                        }
+                    }
+                    sh """
+                        docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                        docker run -d --net=curltest --name='dropw-test' ${IMAGE_NAME}:${IMAGE_TAG}
+                        docker run -i --net=curltest tutum/curl /bin/bash -c '/usr/bin/curl --retry 10 --retry-delay 1 -v http://dropw-test:8080/hello-world'
+                        docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                    """
+                }
             }
-        }
-      }
-    }
-
-    stage('Build and Publish Image from other branches without tag') {
-      when { allOf { not { branch 'master' }; not { buildingTag() }; not { changeRequest() } } }
-      steps {
-        container('docker') {
-            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
-usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
-                sh """
-                    docker build -t ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT} .
-                    docker run -d --network=curltest --name='dropw-test' ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
-                    docker run -i --network=curltest tutum/curl /bin/bash -c '/usr/bin/curl --retry 10 --retry-delay 5 -v http://dropw-test:8080/hello-world'
-                    docker push ${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}:${GIT_TAG_COMMIT}
-                """
-            }
-        }
-      }
+       }
     }
 
   }
-/*  post {
-    success {
-        mail to: '${authorEmail}',
-        subject: "Failed Pipeline: ${currentBuild.fullDisplayName}",
-        body: "Hey, {authorDisplayName}. ${env.BUILD_URL} is success."
-    }
-  }*/
 }

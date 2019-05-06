@@ -1,0 +1,25 @@
+#Mon Jan 07 11:48:46 EET 2019
+/opt/dropwizard-example/src/main/java/com/example/helloworld/core/User.java=1546854343000
+/opt/dropwizard-example/src/main/java/com/example/helloworld/resources/HelloWorldResource.java=1546854343000
+/opt/dropwizard-example/src/main/java/com/example/helloworld/cli/RenderCommand.java=1546854343000
+/opt/dropwizard-example/src/main/java/com/example/helloworld/auth/ExampleAuthorizer.java=1546854343000
+/opt/dropwizard-example/src/main/java/com/example/helloworld/views/PersonView.java=1546854343000
+/opt/dropwizard-example/src/main/java/com/example/helloworld/HelloWorldConfiguration.java=1546854343000
+/opt/dropwizard-example/src/main/java/com/example/helloworld/resources/PeopleResource.java=1546854343000
+/opt/dropwizard-example/src/main/java/com/example/helloworld/api/Saying.java=1546854343000
+/opt/dropwizard-example/src/main/java/com/example/helloworld/db/PersonDAO.java=1546854343000
+/opt/dropwizard-example/src/main/java/com/example/helloworld/HelloWorldApplication.java=1546854343000
+/opt/dropwizard-example/src/main/java/com/example/helloworld/auth/ExampleAuthenticator.java=1546854343000
+/opt/dropwizard-example/src/main/java/com/example/helloworld/tasks/EchoTask.java=1546854343000
+/opt/dropwizard-example/src/main/java/com/example/helloworld/core/Template.java=1546854343000
+/opt/dropwizard-example/src/main/java/com/example/helloworld/core/Person.java=1546854343000
+/opt/dropwizard-example/src/main/java/com/example/helloworld/resources/ProtectedResource.java=1546854343000
+/opt/dropwizard-example/src/main/java/com/example/helloworld/resources/ProtectedClassResource.java=1546854343000
+/opt/dropwizard-example/src/main/java/com/example/helloworld/filter/DateRequiredFeature.java=1546854343000
+configuration*?=E6E7EC7F49A182D0CD6AF7885912BBF2ADEAE819
+/opt/dropwizard-example/src/main/java/com/example/helloworld/resources/FilteredResource.java=1546854343000
+/opt/dropwizard-example/src/main/java/com/example/helloworld/resources/ViewResource.java=1546854343000
+/opt/dropwizard-example/src/main/java/com/example/helloworld/resources/PersonResource.java=1546854343000
+/opt/dropwizard-example/src/main/java/com/example/helloworld/health/TemplateHealthCheck.java=1546854343000
+/opt/dropwizard-example/src/main/java/com/example/helloworld/filter/DateNotSpecifiedFilter.java=1546854343000
+/opt/dropwizard-example/src/main/java/com/example/helloworld/filter/DateRequired.java=1546854343000
