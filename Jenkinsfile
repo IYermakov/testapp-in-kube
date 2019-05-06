@@ -110,7 +110,9 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                     script {
                         IMAGE_NAME = ("${GIT_BRANCH}"=='master') ? "${DOCKERHUB_REPO}/${IMAGE}" : "${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}"
-                        IMAGE_TAG = ("${IMAGE_TAG}"==null) ? "${GIT_TAG_COMMIT}" : "${TAG_NAME}"
+                        if ("${IMAGE_TAG}"==null) {
+                            IMAGE_TAG="${GIT_TAG_COMMIT}"
+                        }
                     }
                     sh """
                         docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
