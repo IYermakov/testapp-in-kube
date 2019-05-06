@@ -108,9 +108,11 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
             container('docker') {
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
-                    sh """
+                    script {
                         IMAGE_NAME = ("${GIT_BRANCH}"=='master') ? "${DOCKERHUB_REPO}/${IMAGE}" : "${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}"
                         IMAGE_TAG = ("${IMAGE_TAG}"==null) ? "${GIT_TAG_COMMIT}"
+                    }
+                    sh """
                         docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
                         docker run -d --net=curltest --name='dropw-test' ${IMAGE_NAME}:${IMAGE_TAG}
                         docker run -i --net=curltest tutum/curl /bin/bash -c '/usr/bin/curl --retry 10 --retry-delay 1 -v http://dropw-test:8080/hello-world'
