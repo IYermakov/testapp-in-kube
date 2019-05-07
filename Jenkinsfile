@@ -18,6 +18,7 @@ pipeline {
 apiVersion: v1
 kind: Pod
 spec:
+  serviceAccountName: tiller
   containers:
     - name: docker
       image: docker:latest
@@ -131,6 +132,7 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
       steps {
         container('helm') {
           sh """
+            /usr/local/bin/helm init --client-only
             /usr/local/bin/helm lint ${CHART_DIR}
             /usr/local/bin/helm upgrade --install --set image.repository=${IMAGE_NAME} image.tag=${IMAGE_TAG} --debug ${IMAGE} ${CHART_DIR}
           """
