@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: notregistered/dropw-app
+  repository: notregistered/dropw-helmpipeline
   tag: latest
 #  pullPolicy: IfNotPresent
   pullPolicy: Always
@@ -23,9 +23,15 @@ ingress:
   annotations: {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
-  hosts:
-    - host: app.devcluster.eu-de.containers.appdomain.cloud
-#      paths: /
+  rules:
+  - host: app.devcluster.eu-de.containers.appdomain.cloud
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: dropw-app
+          servicePort: 8080
+#  paths: /
 
   tls:
   #  - secretName: chart-example-tls

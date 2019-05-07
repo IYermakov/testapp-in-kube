@@ -11,8 +11,8 @@ metadata:
     "helm.sh/hook": test-success
 spec:
   containers:
-    - name: wget
-      image: busybox
-      command: ['wget']
-      args:  ['{{ include "dropw-app.fullname" . }}:{{ .Values.service.port }}']
+    - name: curl
+      image: tutum/curl
+      command: ['/usr/bin/curl']
+      args:  ['{{ include "dropw-app.fullname" . }}:{{ .Values.service.port }}/hello-world']
   restartPolicy: Never
