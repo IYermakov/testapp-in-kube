@@ -9,6 +9,7 @@ pipeline {
     IMAGE_NAME = 'dropw'
     IMAGE_TAG = 'latest'
     GIT_TAG_COMMIT = sh (script: 'git describe --tags --always', returnStdout: true).trim()
+    CHART_DIR = 'dropw-app'
   }
   agent {
   kubernetes {
@@ -35,8 +36,8 @@ spec:
       command:
       - cat
       tty: true
-    - name: kubectl
-      image: lachlanevenson/k8s-kubectl
+    - name: helm
+      image: dtzar/helm-kubectl
       command:
       - cat
       tty: true
@@ -124,6 +125,20 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
             }
        }
     }
+
+    stages {
+    stage('Deploy release to k8s') {
+//      when { allOf { branch 'master'; tag "release-*" } }
+      steps {
+        container('helm') {
+          sh """
+            /usr/local/bin/helm lint ${CHART_DIR}
+            /usr/local/bin/helm upgrade --install --set image.repository=${IMAGE_NAME} image.tag=${IMAGE_TAG} --debug ${IMAGE} ${CHART_DIR}
+          """
+        }
+      }
+    }
+
 
   }
 }
