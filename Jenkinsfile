@@ -126,7 +126,6 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
        }
     }
 
-    stages {
     stage('Deploy release to k8s') {
 //      when { allOf { branch 'master'; tag "release-*" } }
       steps {
@@ -138,7 +137,6 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
         }
       }
     }
-
 
   }
 }
