@@ -18,7 +18,7 @@ pipeline {
 apiVersion: v1
 kind: Pod
 spec:
-//  serviceAccountName: tiller
+  serviceAccountName: tiller
   containers:
     - name: helm
       image: dtzar/helm-kubectl
