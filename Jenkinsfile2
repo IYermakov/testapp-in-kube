@@ -37,7 +37,7 @@ spec:
             /usr/local/bin/helm init --client-only
             /usr/local/bin/helm list
             /usr/local/bin/helm lint ${CHART_DIR}
-            /usr/local/bin/helm upgrade --install --set image.repository=${IMAGE_NAME} image.tag=${IMAGE_TAG} --debug test ./${CHART_DIR}
+            /usr/local/bin/helm upgrade --install --set image.repository=${IMAGE_NAME} image.tag=${IMAGE_TAG} --debug --dry-run test ./${CHART_DIR}
           """
         }
       }
