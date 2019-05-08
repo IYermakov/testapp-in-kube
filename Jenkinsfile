@@ -18,7 +18,7 @@ pipeline {
 apiVersion: v1
 kind: Pod
 spec:
-  serviceAccountName: tiller
+  serviceAccountName: jenkins
   containers:
     - name: docker
       image: docker:latest
@@ -57,11 +57,9 @@ spec:
   }
   stages {
     stage('Run maven') {
-//      when { branch 'master' }
       steps {
         container('maven') {
-//          sh 'mvn -Dmaven.test.failure.ignore clean package'
-          sh 'mvn -Dmaven.test.failure.ignore package'
+          sh 'mvn -Dmaven.test.failure.ignore clean package'
         }
       }
     }
@@ -128,13 +126,13 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
     }
 
     stage('Deploy release to k8s') {
-//      when { allOf { branch 'master'; tag "release-*" } }
+      when { allOf { branch 'master'; tag "release-*" } }
       steps {
         container('helm') {
           sh """
             /usr/local/bin/helm init --client-only
             /usr/local/bin/helm lint ${CHART_DIR}
-            /usr/local/bin/helm upgrade --install --set image.repository=${IMAGE_NAME} image.tag=${IMAGE_TAG} --debug ${IMAGE} ${CHART_DIR}
+            /usr/local/bin/helm upgrade --install --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --debug ${IMAGE} ${CHART_DIR}
           """
         }
       }
