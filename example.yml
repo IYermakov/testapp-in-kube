@@ -1,6 +1,6 @@
 template: Hello, %s!
 
-defaultName: ${DW_DEFAULT_NAME:-explorers}
+defaultName: ${DW_DEFAULT_NAME:-guys}
 
 # Database settings.
 database:
