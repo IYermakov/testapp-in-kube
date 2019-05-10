@@ -80,9 +80,9 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
     stage('Setting variables ') {
       when { buildingTag() }
       steps {
-        sh """
+        script {
             IMAGE_TAG = "${TAG_NAME}"
-        """
+        }
       }
     }
 
