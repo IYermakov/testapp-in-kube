@@ -110,7 +110,7 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                     script {
                         IMAGE_NAME = ("${GIT_BRANCH}"=='master') ? "${DOCKERHUB_REPO}/${IMAGE}" : "${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}"
-                        if ("${IMAGE_TAG}"==null) {
+                        if ("${IMAGE_TAG}"=='') {
                             IMAGE_TAG="${GIT_TAG_COMMIT}"
                         }
                     }
