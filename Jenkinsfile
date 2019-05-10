@@ -126,7 +126,9 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
     }
 
     stage('Deploy release to k8s') {
-      when { allOf { branch 'master'; buildingTag() } }
+//      when { allOf { branch 'master'; buildingTag() } }
+//      when { changeRequest target: 'release' }
+      when { not { changeRequest() } }
       steps {
         container('helm') {
           sh """
