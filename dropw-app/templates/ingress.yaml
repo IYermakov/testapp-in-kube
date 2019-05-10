@@ -25,15 +25,13 @@ spec:
   {{- end }}
 {{- end }}
   rules:
-  {{- range .Values.ingress.hosts }}
-    - host: {{ .host | quote }}
-      http:
-        paths:
-        {{- range .paths }}
-          - path: {{ . }}
-            backend:
-              serviceName: {{ $fullName }}
-              servicePort: http
-        {{- end }}
+    {{- range .Values.ingress.rules }}
+  - host: {{ .host }}
   {{- end }}
+    http:
+      paths:
+        - path: {{ default "/" .path }}
+          backend:
+            serviceName: {{ $fullName }}
+            servicePort: {{ .Values.service.port }}
 {{- end }}
