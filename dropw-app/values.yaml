@@ -28,9 +28,9 @@ ingress:
     http:
       paths:
       - path: /
-#        backend:
-#          serviceName: dropw-app
-#          servicePort: 8080
+        backend:
+          serviceName: dropw-app
+          servicePort: 8080
 #  paths: /
 
   tls:
