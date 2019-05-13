@@ -127,7 +127,7 @@ spec:
             sh """
                 echo "$KUBECONFIG_CONTENT" > kubeconfig
                 kubectl get pods
-                helm upgrade --install --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --debug ${IMAGE} ${CHART_DIR}
+                helm upgrade --install --kubeconfig kubeconfig --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --debug ${IMAGE} ${CHART_DIR}
                 rm kubeconfig
             """
           }
