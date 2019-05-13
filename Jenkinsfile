@@ -122,8 +122,10 @@ spec:
           sh """
             helm init --client-only
             helm lint ${CHART_DIR}
-            helm upgrade --install --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --debug ${IMAGE} ${CHART_DIR}
           """
+          withKubeConfig([credentialsId: 'kubernetes']) {
+            sh "helm upgrade --install --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --debug ${IMAGE} ${CHART_DIR}"
+          }
         }
       }
     }
