@@ -123,13 +123,13 @@ spec:
             helm init --client-only
             helm lint ${CHART_DIR}
           """
-            kubernetesDeploy configs: '**kubeconfig', kubeConfig: [path: ''], kubeconfigId: 'ibm_devcluster', secretName: '', ssh: [sshCredentialsId: '*', sshServer: ''], textCredentials: [certificateAuthorityData: '', clientCertificateData: '', clientKeyData: '', serverUrl: 'https://'] {
-            sh """
-                kubectl get pods
-                helm upgrade --install --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --debug ${IMAGE} ${CHART_DIR}
-            """
-            }
-          
+          withCredentials([kubeconfigContent(credentialsId: 'ibm_devcluster', variable: 'KUBECONFIG_CONTENT')]) {
+             sh '''echo "$KUBECONFIG_CONTENT" > kubeconfig && cat kubeconfig && rm kubeconfig'''
+          }
+          sh """
+             kubectl get pods
+             helm upgrade --install --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --debug ${IMAGE} ${CHART_DIR}
+          """
         }
       }
     }
