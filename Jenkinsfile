@@ -129,7 +129,7 @@ spec:
                 helm upgrade --install --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --debug ${IMAGE} ${CHART_DIR}
             """
             }
-          }
+          
         }
       }
     }
