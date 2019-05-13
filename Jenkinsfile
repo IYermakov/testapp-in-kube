@@ -123,7 +123,6 @@ spec:
             helm init --client-only
             helm lint ${CHART_DIR}
           """
-//          withCredentials([credentialsId: 'ibm_devcluster']) {
             kubernetesDeploy configs: '**kubeconfig', kubeConfig: [path: ''], kubeconfigId: 'ibm_devcluster', secretName: '', ssh: [sshCredentialsId: '*', sshServer: ''], textCredentials: [certificateAuthorityData: '', clientCertificateData: '', clientKeyData: '', serverUrl: 'https://'] {
             sh """
                 kubectl get pods
