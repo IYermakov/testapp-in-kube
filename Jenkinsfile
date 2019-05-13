@@ -7,7 +7,7 @@ pipeline {
     DOCKERHUB_SERVER = 'https://index.docker.io/v1/'
     IMAGE = 'dropw'
     IMAGE_NAME = 'dropw'
-    IMAGE_TAG = 'latest'
+//    IMAGE_TAG = 'latest'
     GIT_TAG_COMMIT = sh (script: 'git describe --tags --always', returnStdout: true).trim()
     CHART_DIR = 'dropw-app'
   }
@@ -64,19 +64,6 @@ spec:
       }
     }
 
-    stage('Preparation') {
-        steps{
-            container('docker') {
-                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
-usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
-                    sh """
-                        docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}
-                        docker network create --driver=bridge curltest
-                    """
-                }
-            }
-        }
-    }
     stage('Setting variables ') {
       when { buildingTag() }
       steps {
@@ -90,15 +77,13 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
       when { changeRequest target: 'master' }
       steps {
         container('docker') {
-            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
-usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
                 sh """
+                    docker network create --driver=bridge curltest
                     docker build -t ${DOCKERHUB_REPO}/${IMAGE}-pr:${CHANGE_ID} .
                     docker run -d --network=curltest --name='dropw-test' ${DOCKERHUB_REPO}/${IMAGE}-pr:${CHANGE_ID}
                     docker run -i --network=curltest tutum/curl /bin/bash -c '/usr/bin/curl --retry 10 --retry-delay 1 -v http://dropw-test:8080/hello-world'
                 """
             }
-        }
       }
     }
 
@@ -106,27 +91,28 @@ usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
       when { not { changeRequest() } }
         steps {
             container('docker') {
+                script {
+                   IMAGE_NAME = ("${GIT_BRANCH}"=='master') ? "${DOCKERHUB_REPO}/${IMAGE}" : "${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}"
+                   if ("${IMAGE_TAG}"=='latest') {
+                       IMAGE_TAG="${GIT_TAG_COMMIT}"
+                   }
+                }
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
-                    script {
-                        IMAGE_NAME = ("${GIT_BRANCH}"=='master') ? "${DOCKERHUB_REPO}/${IMAGE}" : "${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}"
-                        if ("${IMAGE_TAG}"=='') {
-                            IMAGE_TAG="${GIT_TAG_COMMIT}"
-                        }
-                    }
-                    sh """
-                        docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
-                        docker run -d --net=curltest --name='dropw-test' ${IMAGE_NAME}:${IMAGE_TAG}
-                        docker run -i --net=curltest tutum/curl /bin/bash -c '/usr/bin/curl --retry 10 --retry-delay 1 -v http://dropw-test:8080/hello-world'
-                        docker push ${IMAGE_NAME}:${IMAGE_TAG}
-                    """
+                    sh ( docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER} )
                 }
+                sh """
+                    docker network create --driver=bridge curltest
+                    docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                    docker run -d --net=curltest --name='dropw-test' ${IMAGE_NAME}:${IMAGE_TAG}
+                    docker run -i --net=curltest tutum/curl /bin/bash -c '/usr/bin/curl --retry 10 --retry-delay 1 -v http://dropw-test:8080/hello-world'
+                    docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                """
             }
        }
-    }
+     }
 
     stage('Deploy release to k8s') {
-//      when { allOf { branch 'master'; buildingTag() } }
 //      when { changeRequest target: 'release' }
       when { not { changeRequest() } }
       steps {
