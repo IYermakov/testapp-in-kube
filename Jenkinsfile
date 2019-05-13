@@ -7,7 +7,7 @@ pipeline {
     DOCKERHUB_SERVER = 'https://index.docker.io/v1/'
     IMAGE = 'dropw'
     IMAGE_NAME = 'dropw'
-//    IMAGE_TAG = 'latest'
+    IMAGE_TAG = 'latest'
     GIT_TAG_COMMIT = sh (script: 'git describe --tags --always', returnStdout: true).trim()
     CHART_DIR = 'dropw-app'
   }
@@ -79,8 +79,8 @@ spec:
         container('docker') {
                 sh """
                     docker network create --driver=bridge curltest
-                    docker build -t ${DOCKERHUB_REPO}/${IMAGE}-pr:${CHANGE_ID} .
-                    docker run -d --network=curltest --name='dropw-test' ${DOCKERHUB_REPO}/${IMAGE}-pr:${CHANGE_ID}
+                    docker build -t ${DOCKERHUB_REPO}/${IMAGE}:PR-${CHANGE_ID} .
+                    docker run -d --network=curltest --name='dropw-test' ${DOCKERHUB_REPO}/${IMAGE}:PR-${CHANGE_ID}
                     docker run -i --network=curltest tutum/curl /bin/bash -c '/usr/bin/curl --retry 10 --retry-delay 1 -v http://dropw-test:8080/hello-world'
                 """
             }
@@ -99,7 +99,7 @@ spec:
                 }
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
 usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD']]) {
-                    sh ( docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER} )
+                    sh "docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}"
                 }
                 sh """
                     docker network create --driver=bridge curltest
