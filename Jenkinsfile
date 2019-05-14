@@ -130,7 +130,7 @@ spec:
                 ls -la
                 kubectl get pods
                 pwd
-                helm upgrade --install --kubeconfig $kubeconfig --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --debug ${IMAGE} ${CHART_DIR}
+                helm upgrade --install --kubeconfig kubeconfig --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --debug ${IMAGE} ${CHART_DIR}
                 rm -f ca-fra05-devcluster.pem
                 rm -f kubeconfig
             """
