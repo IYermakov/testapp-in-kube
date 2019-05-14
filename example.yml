@@ -15,7 +15,7 @@ database:
   password: sa
 
   # the JDBC URL
-  url: jdbc:h2:./target/example
+  url: jdbc:h2:./example
 
 # use the simple server factory if you only want to run on a single port
 #server:
@@ -84,10 +84,10 @@ viewRendererConfiguration:
         strict_syntax: yes
         whitespace_stripping: yes
 
-metrics:
-  reporters:
-    - type: graphite
-      host: localhost
-      port: 2003
-      prefix: example
-      frequency: 1m
+#metrics:
+#  reporters:
+#    - type: graphite
+#      host: localhost
+#      port: 2003
+#      prefix: example
+#      frequency: 1m
