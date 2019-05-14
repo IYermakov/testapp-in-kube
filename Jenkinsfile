@@ -129,18 +129,6 @@ spec:
                 cat $kubeconfig >> kubeconfig
                 ls -la
                 kubectl get pods
-  echo $HELM_HOME
-  echo $HELM_HOST
-  echo $HELM_NO_PLUGINS
-  echo $TILLER_NAMESPACE
-  echo $KUBECONFIG
-  echo $HELM_TLS_CA_CERT
-  echo $HELM_TLS_CERT
-  echo $HELM_TLS_KEY
-  echo $HELM_TLS_ENABLE
-  echo $HELM_TLS_VERIFY
-  echo $HELM_TLS_HOSTNAME
-  echo $HELM_KEY_PASSPHRASE
                 pwd
                 helm upgrade --install --kubeconfig $kubeconfig --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --debug ${IMAGE} ${CHART_DIR}
                 rm -f ca-fra05-devcluster.pem
