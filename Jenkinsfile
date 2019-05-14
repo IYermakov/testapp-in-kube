@@ -115,7 +115,6 @@ spec:
      }
 
     stage('Deploy release to k8s') {
-//      when { changeRequest target: 'release' }
       when { not { changeRequest() } }
       steps {
         container('helm') {
@@ -123,14 +122,10 @@ spec:
             helm init --client-only
             helm lint ${CHART_DIR}
           """
-//          withCredentials([kubeconfigContent(credentialsId: 'ibm_devcluster', variable: 'KUBECONFIG_CONTENT')]) {
           withCredentials([file(credentialsId: 'ibm_devcluster_kubeconfig', variable: 'kubeconfig'),
                            file(credentialsId: 'ibm_devcluster_cert', variable: 'certificate')]) {
             sh """
-//                printenv
-//                cat $kubeconfig
-//                cat $certificate >> ca-fra05-devcluster.pem
-//                cat ca-fra05-devcluster.pem
+                cat $certificate >> ca-fra05-devcluster.pem
                 ls -la
                 kubectl get pods
                 helm upgrade --install --kubeconfig $kubeconfig --tls-ca-cert ca-fra05-devcluster.pem --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --debug ${IMAGE} ${CHART_DIR}
