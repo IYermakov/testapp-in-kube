@@ -27,6 +27,8 @@ hs_err_pid*
 .idea
 *.iml
 mysql.yml
+workerpod.yml
 dependency-reduced-pom.xml
 sampleusers.cvs
 testplan.jmx
+jmeter*

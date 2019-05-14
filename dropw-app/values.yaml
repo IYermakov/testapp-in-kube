@@ -2,7 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-desiredReplicaCount: 1
+desiredReplicaCount: 2
 scaleMinReplicas: 1
 scaleMaxReplicas: 3
 scaleCpu: 70
