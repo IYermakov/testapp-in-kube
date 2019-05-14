@@ -128,7 +128,7 @@ spec:
                 cat $certificate >> ca-fra05-devcluster.pem
                 ls -la
                 kubectl get pods
-                helm upgrade --install --kubeconfig $kubeconfig --tls-ca-cert ca-fra05-devcluster.pem --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --debug ${IMAGE} ${CHART_DIR}
+                helm upgrade --install --kubeconfig $kubeconfig --tls-ca-cert ${WORKSPACE}/ca-fra05-devcluster.pem --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --debug ${IMAGE} ${CHART_DIR}
                 rm -f ca-fra05-devcluster.pem
             """
           }

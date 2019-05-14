@@ -8,7 +8,7 @@ scaleMaxReplicas: 3
 scaleCpu: 70
 
 image:
-  repository: notregistered/dropw-helmpipeline
+  repository: notregistered/dropw
   tag: latest
 #  pullPolicy: IfNotPresent
   pullPolicy: Always
