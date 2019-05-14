@@ -127,12 +127,14 @@ spec:
           withCredentials([file(credentialsId: 'ibm_devcluster_kubeconfig', variable: 'kubeconfig'),
                            file(credentialsId: 'ibm_devcluster_cert', variable: 'certificate')]) {
             sh """
+                printenv
                 ls -la
                 cat $kubeconfig
                 cat $certificate >> ca-fra05-devcluster.pem
+                cat ca-fra05-devcluster.pem
                 ls -la
                 kubectl get pods
-                helm upgrade --install --kubeconfig $kubeconfig --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --debug ${IMAGE} ${CHART_DIR}
+                env HELM_TLS_CA_CERT=$WORKSPACE helm upgrade --install --kubeconfig $kubeconfig --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --debug ${IMAGE} ${CHART_DIR}
                 rm -f ca-fra05-devcluster.pem
             """
           }

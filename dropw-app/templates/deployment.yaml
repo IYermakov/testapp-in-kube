@@ -18,6 +18,10 @@ spec:
       labels:
         app.kubernetes.io/name: {{ include "dropw-app.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
+      annotations:
+        autoscale/minReplicas: "{{ .Values.scaleMinReplicas }}"
+        autoscale/maxReplicas: "{{ .Values.scaleMaxReplicas }}"
+        autoscale/cpu: "{{ .Values.scaleCpu }}"
     spec:
       containers:
         - name: {{ .Chart.Name }}

@@ -2,7 +2,10 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-replicaCount: 1
+desiredReplicaCount: 1
+scaleMinReplicas: 1
+scaleMaxReplicas: 3
+scaleCpu: 70
 
 image:
   repository: notregistered/dropw-helmpipeline
