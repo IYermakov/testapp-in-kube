@@ -127,7 +127,8 @@ spec:
           withCredentials([file(credentialsId: 'ibm_devcluster_kubeconfig', variable: 'kubeconfig'),
                            file(credentialsId: 'ibm_devcluster_cert', variable: 'certificate')]) {
             sh """
-                echo "$certificate" > ca-fra05-devcluster.pem
+                echo $kubeconfig
+                cp $certificate ca-fra05-devcluster.pem
                 kubectl get pods
                 helm upgrade --install --kubeconfig $kubeconfig --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --debug ${IMAGE} ${CHART_DIR}
                 rm -f ca-fra05-devcluster.pem
