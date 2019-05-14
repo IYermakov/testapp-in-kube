@@ -123,12 +123,14 @@ spec:
             helm init --client-only
             helm lint ${CHART_DIR}
           """
-          withCredentials([kubeconfigContent(credentialsId: 'ibm_devcluster', variable: 'KUBECONFIG_CONTENT')]) {
+//          withCredentials([kubeconfigContent(credentialsId: 'ibm_devcluster', variable: 'KUBECONFIG_CONTENT')]) {
+          withCredentials([file(credentialsId: 'ibm_devcluster_kubeconfig', variable: 'kubeconfig'),
+                           file(credentialsId: 'ibm_devcluster_cert', variable: 'certificate')]) {
             sh """
-                echo "$KUBECONFIG_CONTENT" > kubeconfig
+                echo "$certificate" > ca-fra05-devcluster.pem
                 kubectl get pods
-                helm upgrade --install --kubeconfig kubeconfig --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --debug ${IMAGE} ${CHART_DIR}
-                rm kubeconfig
+                helm upgrade --install --kubeconfig $kubeconfig --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --debug ${IMAGE} ${CHART_DIR}
+                rm -f ca-fra05-devcluster.pem
             """
           }
         }
