@@ -1,6 +1,6 @@
-/opt/dropwizard-example/src/test/java/com/example/helloworld/IntegrationTest.java
-/opt/dropwizard-example/src/test/java/com/example/helloworld/resources/ProtectedResourceTest.java
-/opt/dropwizard-example/src/test/java/com/example/helloworld/resources/ProtectedClassResourceTest.java
-/opt/dropwizard-example/src/test/java/com/example/helloworld/resources/PeopleResourceTest.java
-/opt/dropwizard-example/src/test/java/com/example/helloworld/resources/PersonResourceTest.java
-/opt/dropwizard-example/src/test/java/com/example/helloworld/db/PersonDAOTest.java
+/opt/kuber/testapp-in-kube/src/test/java/com/example/helloworld/IntegrationTest.java
+/opt/kuber/testapp-in-kube/src/test/java/com/example/helloworld/resources/PersonResourceTest.java
+/opt/kuber/testapp-in-kube/src/test/java/com/example/helloworld/resources/ProtectedResourceTest.java
+/opt/kuber/testapp-in-kube/src/test/java/com/example/helloworld/resources/PeopleResourceTest.java
+/opt/kuber/testapp-in-kube/src/test/java/com/example/helloworld/db/PersonDAOTest.java
+/opt/kuber/testapp-in-kube/src/test/java/com/example/helloworld/resources/ProtectedClassResourceTest.java
