@@ -107,7 +107,7 @@ spec:
                     docker network create --driver=bridge curltest
                     docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
                     docker run -d --net=curltest --name='dropw-test' ${IMAGE_NAME}:${IMAGE_TAG}
-                    docker run -i --net=curltest tutum/curl /bin/bash -c '/usr/bin/curl -v http://dropw-test:8080/hello-world'
+                    docker run -i --net=curltest tutum/curl /bin/bash -c '/usr/bin/curl -o /dev/null -I -w "%{http_code}" http://dropw-test:8080/{hello-world,people/1}'
                     docker push ${IMAGE_NAME}:${IMAGE_TAG}
                 """
             }

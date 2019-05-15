@@ -29,6 +29,6 @@ hs_err_pid*
 mysql.yml
 workerpod.yml
 dependency-reduced-pom.xml
-sampleusers.cvs
-testplan.jmx
+#sampleusers.cvs
+#testplan.jmx
 jmeter*
