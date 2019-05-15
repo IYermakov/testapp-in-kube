@@ -126,8 +126,8 @@ spec:
             helm init --client-only
             helm lint ${CHART_DIR}
           """
-          withCredentials([file(credentialsId: '$CLUSTER_KUBECONFIG', variable: 'kubeconfig'),
-                           file(credentialsId: '$CLUSTER_CERT', variable: 'certificate')]) {
+          withCredentials([file(credentialsId: $CLUSTER_KUBECONFIG, variable: 'kubeconfig'),
+                           file(credentialsId: $CLUSTER_CERT, variable: 'certificate')]) {
             sh """
                 cat $certificate >> ca-fra05-devcluster.pem
                 cat $kubeconfig >> kubeconfig
