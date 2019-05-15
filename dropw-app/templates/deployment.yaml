@@ -8,7 +8,7 @@ metadata:
 #    app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.hpa.replicaCount }}
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ include "dropw-app.name" . }}
@@ -18,6 +18,10 @@ spec:
       labels:
         app.kubernetes.io/name: {{ include "dropw-app.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
+      annotations:
+        autoscale/minReplicas: "{{ .Values.hpa.minReplicas }}"
+        autoscale/maxReplicas: "{{ .Values.hpa.maxReplicas }}"
+        autoscale/cpu: "{{ .Values.hpa.cpu }}"
     spec:
       containers:
         - name: {{ .Chart.Name }}
