@@ -10,6 +10,8 @@ pipeline {
     IMAGE_TAG = 'latest'
     GIT_TAG_COMMIT = sh (script: 'git describe --tags --always', returnStdout: true).trim()
     CHART_DIR = 'dropw-app'
+    CLUSTER_KUBECONFIG = 'ibm_devcluster_kubeconfig'
+    CLUSTER_CERT = 'ibm_devcluster_cert'
   }
   agent {
   kubernetes {
@@ -107,7 +109,9 @@ spec:
                     docker network create --driver=bridge curltest
                     docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
                     docker run -d --net=curltest --name='dropw-test' ${IMAGE_NAME}:${IMAGE_TAG}
-                    docker run -i --net=curltest tutum/curl /bin/bash -c '/usr/bin/curl -o /dev/null -I -w "%{http_code}" http://dropw-test:8080/{hello-world,people/1}'
+                    docker run -i --net=curltest tutum/curl /bin/bash -c '\
+                        curl -H "Content-Type: application/json" -X POST -d '{"fullName":"Test Person","jobTitle":"Test Title"}' http://dropw-test:8080/people && \
+                        curl -o /dev/null -I -w "%{http_code}" http://dropw-test:8080/{hello-world,people/1}'
                     docker push ${IMAGE_NAME}:${IMAGE_TAG}
                 """
             }
@@ -122,8 +126,8 @@ spec:
             helm init --client-only
             helm lint ${CHART_DIR}
           """
-          withCredentials([file(credentialsId: 'ibm_devcluster_kubeconfig', variable: 'kubeconfig'),
-                           file(credentialsId: 'ibm_devcluster_cert', variable: 'certificate')]) {
+          withCredentials([file(credentialsId: '$CLUSTER_KUBECONFIG', variable: 'kubeconfig'),
+                           file(credentialsId: '$CLUSTER_CERT', variable: 'certificate')]) {
             sh """
                 cat $certificate >> ca-fra05-devcluster.pem
                 cat $kubeconfig >> kubeconfig
