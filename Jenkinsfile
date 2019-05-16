@@ -58,14 +58,6 @@ spec:
     }
   }
   stages {
-    stage('Run maven') {
-      steps {
-        container('maven') {
-          sh 'mvn -Dmaven.test.failure.ignore clean package'
-        }
-      }
-    }
-
     stage('Setting variables ') {
       when { buildingTag() }
       steps {
@@ -74,6 +66,15 @@ spec:
         }
       }
     }
+
+    stage('Run maven') {
+      steps {
+        container('maven') {
+          sh 'mvn -Dmaven.test.failure.ignore -DDW_DEFAULT_NAME="${IMAGE_TAG}" clean package'
+        }
+      }
+    }
+
 
     stage('Docker image build') {
         parallel {
