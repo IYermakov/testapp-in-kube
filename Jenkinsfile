@@ -7,8 +7,7 @@ pipeline {
     DOCKERHUB_SERVER = 'https://index.docker.io/v1/'
     IMAGE = 'dropw'
     IMAGE_NAME = 'dropw'
-    IMAGE_TAG = 'latest'
-    GIT_TAG_COMMIT = sh (script: 'git describe --tags --always', returnStdout: true).trim()
+    IMAGE_TAG = sh (script: 'git describe --tags --always', returnStdout: true).trim()
     CHART_DIR = 'dropw-app'
     CLUSTER_KUBECONFIG = 'ibm_devcluster_kubeconfig'
     CLUSTER_CERT = 'ibm_devcluster_cert'
@@ -101,9 +100,6 @@ spec:
                         container('docker') {
                             script {
                                 IMAGE_NAME = ("${GIT_BRANCH}"=='master') ? "${DOCKERHUB_REPO}/${IMAGE}" : "${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}"
-                                if ("${IMAGE_TAG}"=='latest') {
-                                    IMAGE_TAG="${GIT_TAG_COMMIT}"
-                                }
                             }
                             withCredentials([[$class: 'UsernamePasswordMultiBinding',
                                 credentialsId: 'dockerhub',
@@ -137,8 +133,8 @@ spec:
                     withCredentials([file(credentialsId: "${CLUSTER_KUBECONFIG}", variable: 'kubeconfig'),
                                      file(credentialsId: "${CLUSTER_CERT}", variable: 'certificate')]) {
                         sh """
-                            cat $certificate >> ca-fra05-devcluster.pem
-                            cat $kubeconfig >> kubeconfig
+                            cat $certificate > ca-fra05-devcluster.pem
+                            cat $kubeconfig > kubeconfig
                             helm upgrade --install --kubeconfig kubeconfig --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --debug ${IMAGE} ${CHART_DIR}
                             rm -f ca-fra05-devcluster.pem
                             rm -f kubeconfig
