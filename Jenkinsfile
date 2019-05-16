@@ -107,12 +107,15 @@ spec:
                                 passwordVariable: 'DOCKER_PASSWORD']]) {
                                     sh "docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}"
                                 }
+                            environment {
+                                JSON_STR = '{"fullName":"Test Person","jobTitle":"Test Title"}''
+                            }
                             sh """
                                 docker network create --driver=bridge curltest
                                 docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
                                 docker run -d --net=curltest --name='dropw-test' ${IMAGE_NAME}:${IMAGE_TAG}
                                 docker run -i --net=curltest tutum/curl /bin/bash -c '\
-                                    curl -H "Content-Type: application/json" -X POST -d \'{"fullName":"TestPerson","jobTitle":"TestTitle"}\' http://dropw-test:8080/people && \
+                                    curl -H "Content-Type: application/json" -X POST -d "${JSON_STR}" http://dropw-test:8080/people && \
                                     curl -o /dev/null -I -w "%{http_code}" http://dropw-test:8080/{hello-world,people/1}'
                                 docker push ${IMAGE_NAME}:${IMAGE_TAG}
                             """
