@@ -40,7 +40,7 @@ spec:
       - cat
       tty: true
     - name: helm
-      image: dtzar/helm-kubectl:2.13.1
+      image: alpine/helm:2.13.1
       imagePullPolicy: Always
       command:
       - cat
