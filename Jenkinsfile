@@ -93,6 +93,9 @@ spec:
 
             stage('Regular docker build') {
                 when { not { changeRequest() } }
+                    environment {
+                        JSON_STR = '{"fullName":"Test Person","jobTitle":"Test Title"}'
+                    }
                     steps {
                         container('docker') {
                             script {
@@ -107,9 +110,6 @@ spec:
                                 passwordVariable: 'DOCKER_PASSWORD']]) {
                                     sh "docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}"
                                 }
-                            environment {
-                                JSON_STR = '{"fullName":"Test Person","jobTitle":"Test Title"}'
-                            }
                             sh """
                                 docker network create --driver=bridge curltest
                                 docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
