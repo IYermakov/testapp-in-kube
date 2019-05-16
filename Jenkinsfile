@@ -108,7 +108,7 @@ spec:
                                     sh "docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}"
                                 }
                             environment {
-                                JSON_STR = '{"fullName":"Test Person","jobTitle":"Test Title"}''
+                                JSON_STR = '{"fullName":"Test Person","jobTitle":"Test Title"}'
                             }
                             sh """
                                 docker network create --driver=bridge curltest
