@@ -9,4 +9,4 @@ ADD example.mv.db example.mv.db
 ADD example.yml example.yml
 EXPOSE 8080
 CMD java -jar dropwizard.jar db migrate example.yml
-CMD DW_DEFAULT_NAME="123123" java -Xmx750M -jar dropwizard.jar server example.yml
+CMD DW_DEFAULT_NAME=${GREETING} java -Xmx750M -jar dropwizard.jar server example.yml

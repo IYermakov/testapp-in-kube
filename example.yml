@@ -1,6 +1,6 @@
-template: Hello, %s!
+template: Application tag is, %s!
 
-defaultName: ${DW_DEFAULT_NAME:-Strangers}
+defaultName: ${DW_DEFAULT_NAME:-tag}
 
 # Database settings.
 database:

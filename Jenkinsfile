@@ -109,7 +109,7 @@ spec:
                                 }
                             sh """
                                 docker network create --driver=bridge curltest
-                                docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                                docker build --build-arg GREETING={IMAGE_TAG} -t ${IMAGE_NAME}:${IMAGE_TAG} .
                                 docker run -d --net=curltest --name='dropw-test' ${IMAGE_NAME}:${IMAGE_TAG}
                                 docker run -i --net=curltest tutum/curl /bin/bash -c '\
                                     curl -H "Content-Type: application/json" -X POST -d "${JSON_STR}" http://dropw-test:8080/people && \
