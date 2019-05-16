@@ -44,6 +44,7 @@ spec:
       command:
       - cat
       tty: true
+    imagePullPolicy: Always
     - name: dind
       image: docker:18.05-dind
       securityContext:
