@@ -1,6 +1,6 @@
 template: Hello, %s!
 
-defaultName: ${DW_DEFAULT_NAME:-strangers}
+defaultName: ${DW_DEFAULT_NAME:-Strangers}
 
 # Database settings.
 database:
