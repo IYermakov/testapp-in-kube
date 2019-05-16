@@ -69,7 +69,7 @@ spec:
     stage('Run maven') {
       steps {
         container('maven') {
-          sh 'mvn -Dmaven.test.failure.ignore -DDW_DEFAULT_NAME="${IMAGE_TAG}" clean package'
+          sh 'mvn -Dmaven.test.failure.ignore clean package'
         }
       }
     }
