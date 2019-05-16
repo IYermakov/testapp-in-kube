@@ -109,8 +109,8 @@ spec:
                                 }
                             sh """
                                 docker network create --driver=bridge curltest
-                                docker build --env DW_DEFAULT_NAME={IMAGE_TAG} -t ${IMAGE_NAME}:${IMAGE_TAG} .
-                                docker run -d --net=curltest --name='dropw-test' ${IMAGE_NAME}:${IMAGE_TAG}
+                                docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                                docker run -d --env DW_DEFAULT_NAME=${IMAGE_TAG} --net=curltest --name='dropw-test' ${IMAGE_NAME}:${IMAGE_TAG}
                                 docker push ${IMAGE_NAME}:${IMAGE_TAG}
                             """
                         }
