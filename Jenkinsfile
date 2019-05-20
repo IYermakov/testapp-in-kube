@@ -111,8 +111,11 @@ spec:
                                 docker network create --driver=bridge curltest
                                 docker build --build-arg GREETING=${IMAGE_TAG} -t ${IMAGE_NAME}:${IMAGE_TAG} .
                                 docker run -d --net=curltest --name='dropw-test' ${IMAGE_NAME}:${IMAGE_TAG}
-                                docker run -i --net=curltest tutum/curl \
-                                    /usr/bin/curl -H "Content-Type: application/json" -X POST -d '{"fullName":"Test Person","jobTitle":"Test Title"}' http://dropw-test:8080/people
+                                HTTP_RESPONSE_CODE = sh (docker run -i --net=curltest tutum/curl \
+                                    /usr/bin/curl -H "Content-Type: application/json" -X POST -d '{"fullName":"Test Person","jobTitle":"Test Title"}' http://dropw-test:8080/people,
+                                    returnStdout: true
+                                ).trim()
+                                echo "${HTTP_RESPONSE_CODE}"
                                 docker run -i --net=curltest tutum/curl \
                                     /usr/bin/curl -o /dev/null -I -w "%{http_code}" http://dropw-test:8080/{hello-world,people/1}
                                 docker push ${IMAGE_NAME}:${IMAGE_TAG}
