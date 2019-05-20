@@ -122,10 +122,12 @@ spec:
                         }
                     }
                 post {
+                    always{
                     echo "${HTTP_RESPONSE_CODE_1}"
                     echo "${HTTP_RESPONSE_CODE_2}"
                     echo "${HTTP_RESPONSE_CODE_3}"
                     echo "${GREETING}"
+                    }
                 }
             }
         }
