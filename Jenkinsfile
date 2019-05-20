@@ -105,12 +105,12 @@ spec:
                                 docker build --build-arg GREETING -t ${IMAGE_NAME}:${IMAGE_TAG} .
                                 docker run -d --net=curltest --name='dropw-test' ${IMAGE_NAME}:${IMAGE_TAG}
                                 """
-                                HTTP_RESPONSE_CODE = sh (script: 'docker run -i --net=curltest tutum/curl /usr/bin/curl -H "Content-Type: application/json" -o /dev/null -s -w "%{http_code}" -X POST -d \'{"fullName":"Test Person","jobTitle":"Test Title"}\' http://dropw-test:8080/people', returnStdout: true).trim()
-                                echo "${HTTP_RESPONSE_CODE}"
-                                sh """
-                                docker run -i --net=curltest tutum/curl \
-                                    /usr/bin/curl -o /dev/null -I -s -w "%{http_code}" http://dropw-test:8080/{hello-world,people/1}
-                                """
+                                HTTP_RESPONSE_CODE_1 = sh (script: 'docker run -i --net=curltest tutum/curl \
+                                    /usr/bin/curl -H "Content-Type: application/json" -o /dev/null -s -w "%{http_code}" -X POST -d \'{"fullName":"Test Person","jobTitle":"Test Title"}\' http://dropw-test:8080/people', returnStdout: true).trim()
+                                HTTP_RESPONSE_CODE_2 = sh (script: 'docker run -i --net=curltest tutum/curl \
+                                    /usr/bin/curl -o /dev/null -I -s -w "%{http_code}" http://dropw-test:8080/hello-world', returnStdout: true).trim()
+                                HTTP_RESPONSE_CODE_3 = sh (script: 'docker run -i --net=curltest tutum/curl \
+                                    /usr/bin/curl -o /dev/null -I -s -w "%{http_code}" http://dropw-test:8080/people/1', returnStdout: true).trim()
                                 withCredentials([[$class: 'UsernamePasswordMultiBinding',
                                     credentialsId: 'dockerhub',
                                     usernameVariable: 'DOCKER_USER',
@@ -121,6 +121,12 @@ spec:
                             }
                         }
                     }
+                post {
+                    echo "${HTTP_RESPONSE_CODE_1}"
+                    echo "${HTTP_RESPONSE_CODE_2}"
+                    echo "${HTTP_RESPONSE_CODE_3}"
+                    echo "${GREETING}"
+                }
             }
         }
     }
