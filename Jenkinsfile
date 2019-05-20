@@ -94,7 +94,7 @@ spec:
             stage('Regular docker build') {
                 when { not { changeRequest() } }
                 environment {
-                    GREETING=${IMAGE_TAG}
+                    GREETING="${IMAGE_TAG}"
                 }
                     steps {
                         container('docker') {
