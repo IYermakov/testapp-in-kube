@@ -112,8 +112,8 @@ spec:
                                 docker build --build-arg GREETING=${IMAGE_TAG} -t ${IMAGE_NAME}:${IMAGE_TAG} .
                                 docker run -d --net=curltest --name='dropw-test' ${IMAGE_NAME}:${IMAGE_TAG}
                                 docker run -i --net=curltest tutum/curl \
-                                    curl -H "Content-Type: application/json" -X POST -d '{"fullName":"Test Person","jobTitle":"Test Title"}' http://dropw-test:8080/people && \
-                                    curl -o /dev/null -I -w "%{http_code}" http://dropw-test:8080/{hello-world,people/1}
+                                    /usr/bin/curl -H "Content-Type: application/json" -X POST -d '{"fullName":"Test Person","jobTitle":"Test Title"}' http://dropw-test:8080/people && \
+                                    /usr/bin/curl -o /dev/null -I -w "%{http_code}" http://dropw-test:8080/{hello-world,people/1}
                                 docker push ${IMAGE_NAME}:${IMAGE_TAG}
                             """
                         }
