@@ -95,6 +95,7 @@ spec:
                 when { not { changeRequest() } }
                     environment {
                         JSON_STR = '{"fullName":"Test Person","jobTitle":"Test Title"}'
+                        HTTP_RESPONSE_CODE = '404'
                     }
                     steps {
                         container('docker') {
