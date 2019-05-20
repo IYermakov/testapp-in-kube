@@ -95,7 +95,10 @@ spec:
                 when { not { changeRequest() } }
                     environment {
                         JSON_STR = '{"fullName":"Test Person","jobTitle":"Test Title"}'
-                        HTTP_RESPONSE_CODE = '404'
+                        HTTP_RESPONSE_CODE = sh (script: 'docker run -i --net=curltest tutum/curl \
+                            /usr/bin/curl -H "Content-Type: application/json" -X POST -d \'{"fullName":"Test Person","jobTitle":"Test Title"}\' http://dropw-test:8080/people, \
+                            returnStdout: true \
+                        ).trim()
                     }
                     steps {
                         container('docker') {
@@ -112,10 +115,6 @@ spec:
                                 docker network create --driver=bridge curltest
                                 docker build --build-arg GREETING=${IMAGE_TAG} -t ${IMAGE_NAME}:${IMAGE_TAG} .
                                 docker run -d --net=curltest --name='dropw-test' ${IMAGE_NAME}:${IMAGE_TAG}
-                                HTTP_RESPONSE_CODE = sh (script: 'docker run -i --net=curltest tutum/curl \
-                                    /usr/bin/curl -H "Content-Type: application/json" -X POST -d \'{"fullName":"Test Person","jobTitle":"Test Title"}\' http://dropw-test:8080/people,
-                                    returnStdout: true
-                                ).trim()
                                 echo "${HTTP_RESPONSE_CODE}"
                                 docker run -i --net=curltest tutum/curl \
                                     /usr/bin/curl -o /dev/null -I -w "%{http_code}" http://dropw-test:8080/{hello-world,people/1}
