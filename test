@@ -2,3 +2,6 @@
 //                                \
 //                                    curl -H "Content-Type: application/json" -X POST -d "${JSON_STR}" http://dropw-test:8080/people && \
 //                                    curl -o /dev/null -I -w "%{http_code}" http://dropw-test:8080/{hello-world,people/1}'
+
+
+docker run -i --net=curltest tutum/curl /usr/bin/curl -H "Content-Type: application/json" -X POST -d \'{"fullName":"Test Person","jobTitle":"Test Title"}\' http://dropw-test:8080/people
