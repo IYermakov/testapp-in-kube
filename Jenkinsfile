@@ -108,9 +108,9 @@ spec:
                                 HTTP_RESPONSE_CODE_1 = sh (script: 'docker run -i --net=curltest tutum/curl \
                                     /usr/bin/curl -H "Content-Type: application/json" -o /dev/null -s -w "%{http_code}" -X POST -d \'{"fullName":"Test Person","jobTitle":"Test Title"}\' http://dropw-test:8080/people', returnStdout: true).trim()
                                 if ("${HTTP_RESPONSE_CODE_1}" != 200) {
-                                    currentBuild.result = failure_post
+                                    currentBuild.result = unsuccessful
                                 } else {
-                                    currentBuild.result = is_ok
+                                    currentBuild.result = success
                                 }
                                 HTTP_RESPONSE_CODE_2 = sh (script: 'docker run -i --net=curltest tutum/curl \
                                     /usr/bin/curl -o /dev/null -I -s -w "%{http_code}" http://dropw-test:8080/hello-world', returnStdout: true).trim()
@@ -133,11 +133,11 @@ spec:
                         echo "${HTTP_RESPONSE_CODE_3}"
                         echo "${GREETING}"
                     }
-                    failure_post{
-                    echo "HTTP response for POST is - ${HTTP_RESPONSE_CODE_1}"
+                    unsuccessful{
+                        echo "HTTP response for POST is - ${HTTP_RESPONSE_CODE_1}"
                     }
-                    is_ok{
-                    echo "test - ${HTTP_RESPONSE_CODE_1}"
+                    success{
+                    echo "Everything is good - ${HTTP_RESPONSE_CODE_1}"
                     }
 
 
