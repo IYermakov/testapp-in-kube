@@ -111,7 +111,7 @@ spec:
                                 HTTP_RESPONSE_CODE_3 = sh (script: 'docker run -i --net=curltest tutum/curl \
                                     /usr/bin/curl -o /dev/null -I -s -w "%{http_code}" http://dropw-test:8080/people/1', returnStdout: true).trim()
                                 if ("${HTTP_RESPONSE_CODE_1}" != 200 || "${HTTP_RESPONSE_CODE_2}" != 200 || "${HTTP_RESPONSE_CODE_3}" != 200) {
-                                    currentBuild.result = unsuccessful
+                                    currentBuild.result = failure
                                     return
                                 }
                                 withCredentials([[$class: 'UsernamePasswordMultiBinding',
@@ -128,8 +128,8 @@ spec:
                     success{
                         println "Everything is OK. Application image tag is ${GREETING}"
                     }
-                    unsuccessful{
-                        println "Problem in testing:"
+                    failure{
+                        println "Testing results:"
                         println "HTTP response for POST test person is - ${HTTP_RESPONSE_CODE_1}"
                         println "HTTP response for GET hello-world page is - ${HTTP_RESPONSE_CODE_2}"
                         println "HTTP response for GET test person - ${HTTP_RESPONSE_CODE_3}"
