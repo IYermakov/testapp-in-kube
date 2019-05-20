@@ -95,10 +95,7 @@ spec:
                 when { not { changeRequest() } }
                     environment {
                         JSON_STR = '{"fullName":"Test Person","jobTitle":"Test Title"}'
-                        HTTP_RESPONSE_CODE = sh (script: 'docker run -i --net=curltest tutum/curl \
-                            /usr/bin/curl -H "Content-Type: application/json" -X POST -d \'{"fullName":"Test Person","jobTitle":"Test Title"}\' http://dropw-test:8080/people, \
-                            returnStdout: true \
-                        ).trim()
+                        HTTP_RESPONSE_CODE = sh (script: 'docker run -i --net=curltest tutum/curl /usr/bin/curl -H "Content-Type: application/json" -X POST -d \'{"fullName":"Test Person","jobTitle":"Test Title"}\' http://dropw-test:8080/people, returnStdout: true).trim()
                     }
                     steps {
                         container('docker') {
