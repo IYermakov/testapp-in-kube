@@ -112,7 +112,7 @@ spec:
                                     /usr/bin/curl -o /dev/null -I -s -w "%{http_code}" http://dropw-test:8080/people/1', returnStdout: true).trim()
                                 if ("${HTTP_RESPONSE_CODE_1}" != 200 || "${HTTP_RESPONSE_CODE_2}" != 200 || "${HTTP_RESPONSE_CODE_3}" != 200) {
                                     currentBuild.result = failure
-                                    return
+                                    throw new Exception("Testing failure!")
                                 }
                                 withCredentials([[$class: 'UsernamePasswordMultiBinding',
                                     credentialsId: 'dockerhub',
