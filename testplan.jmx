@@ -47,7 +47,7 @@
         </CSVDataSet>
         <hashTree/>
         <RandomVariableConfig guiclass="TestBeanGUI" testclass="RandomVariableConfig" testname="Random peopleid" enabled="true">
-          <stringProp name="maximumValue">3000</stringProp>
+          <stringProp name="maximumValue">1100</stringProp>
           <stringProp name="minimumValue">1</stringProp>
           <stringProp name="outputFormat"></stringProp>
           <boolProp name="perThread">true</boolProp>

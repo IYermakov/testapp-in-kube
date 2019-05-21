@@ -6,7 +6,7 @@ hpa:
   replicaCount: 1
   minReplicas: 1
   maxReplicas: 3
-  cpu: 30
+  cpu: 50
 
 image:
   repository: notregistered/dropw
