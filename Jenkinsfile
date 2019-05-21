@@ -102,6 +102,8 @@ spec:
                                 IMAGE_NAME = ("${GIT_BRANCH}"=='master') ? "${DOCKERHUB_REPO}/${IMAGE}" : "${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}"
                                 sh """
                                 docker network create --driver=bridge curltest
+                                ls -la
+                                ls -la target
                                 docker build --build-arg GREETING -t ${IMAGE_NAME}:${IMAGE_TAG} .
                                 docker run -d --net=curltest --name='dropw-test' ${IMAGE_NAME}:${IMAGE_TAG}
                                 """
