@@ -13,7 +13,7 @@
 .mtj.tmp/
 
 # Package Files #
-*.jar
+#*.jar
 *.war
 *.nar
 *.ear
@@ -32,3 +32,4 @@ dependency-reduced-pom.xml
 #sampleusers.cvs
 #testplan.jmx
 jmeter*
+test

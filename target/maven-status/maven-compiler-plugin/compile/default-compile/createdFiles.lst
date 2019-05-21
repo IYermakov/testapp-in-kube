@@ -10,13 +10,13 @@ com/example/helloworld/views/PersonView.class
 com/example/helloworld/resources/ViewResource$3.class
 com/example/helloworld/resources/PeopleResource.class
 com/example/helloworld/core/Template.class
-com/example/helloworld/resources/ViewResource.class
 com/example/helloworld/filter/DateNotSpecifiedFilter.class
+com/example/helloworld/resources/ViewResource.class
 com/example/helloworld/resources/PersonResource.class
 com/example/helloworld/api/Saying.class
 com/example/helloworld/resources/ViewResource$4.class
-com/example/helloworld/auth/ExampleAuthorizer.class
 com/example/helloworld/health/TemplateHealthCheck.class
+com/example/helloworld/auth/ExampleAuthorizer.class
 com/example/helloworld/resources/ViewResource$1.class
 com/example/helloworld/filter/DateRequired.class
 com/example/helloworld/resources/ProtectedResource.class
