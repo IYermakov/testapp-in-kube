@@ -39,9 +39,9 @@ server:
     #  port: 8445
     #  keyStorePath: example.keystore
     #  keyStorePassword: example
-  adminConnectors:
-    - type: http
-      port: 8081
+#  adminConnectors:
+#    - type: http
+#      port: 8081
 #    - type: https
 #      port: 8444
 #      keyStorePath: example.keystore

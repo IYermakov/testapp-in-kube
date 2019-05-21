@@ -67,10 +67,10 @@ spec:
     }
 
     stage('Run maven') {
+      when { branch 'master' }
       steps {
         container('maven') {
-//          sh 'mvn -Dmaven.test.failure.ignore clean package'
-          sh 'mvn -Dmaven.test.failure.ignore package'
+          sh 'mvn -Dmaven.test.failure.ignore clean package'
         }
       }
     }
@@ -113,7 +113,6 @@ spec:
                                     /usr/bin/curl -o /dev/null -I -s -w "%{http_code}" http://dropw-test:8080/people/1', returnStdout: true).trim()
                                 if (!"${HTTP_RESPONSE_CODE_1}" == 200 || !"${HTTP_RESPONSE_CODE_2}" == 200 || !"${HTTP_RESPONSE_CODE_3}" == 200) {
                                     println "Raising failure status"
-//                                    currentBuild.result = failure
                                     throw new Exception("Testing failure!")
                                 }
                                 withCredentials([[$class: 'UsernamePasswordMultiBinding',
