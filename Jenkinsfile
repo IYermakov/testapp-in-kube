@@ -67,6 +67,7 @@ spec:
     }
 
     stage('Run maven') {
+      when { branch 'master' }
       steps {
         container('maven') {
           sh 'mvn -Dmaven.test.failure.ignore clean package'
