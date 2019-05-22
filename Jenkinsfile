@@ -67,7 +67,7 @@ spec:
     }
 
     stage('Run maven') {
-      when { branch 'master' }
+//      when { branch 'master' }
       steps {
         container('maven') {
           sh 'mvn -Dmaven.test.failure.ignore clean package'
@@ -155,7 +155,7 @@ spec:
                         sh """
                             cat $certificate > ca-fra05-devcluster.pem
                             cat $kubeconfig > kubeconfig
-                            helm upgrade --install --kubeconfig kubeconfig --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --debug ${IMAGE} ${CHART_DIR}
+                            helm upgrade --install --kubeconfig kubeconfig --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --set metadata.name=dropw-${IMAGE_TAG} --debug ${IMAGE} ${CHART_DIR}
                             rm -f ca-fra05-devcluster.pem
                             rm -f kubeconfig
                         """

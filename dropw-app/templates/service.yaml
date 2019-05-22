@@ -1,7 +1,8 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "dropw-app.fullname" . }}
+#  name: {{ include "dropw-app.fullname" . }}
+  name: {{ .Values.metadata.name }}
   labels:
     app.kubernetes.io/name: {{ include "dropw-app.name" . }}
     helm.sh/chart: {{ include "dropw-app.chart" . }}

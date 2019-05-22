@@ -3,7 +3,8 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: {{ $fullName }}
+#  name: {{ $fullName }}
+  name: {{ .Values.metadata.name }}
   labels:
     app.kubernetes.io/name: {{ include "dropw-app.name" . }}
     helm.sh/chart: {{ include "dropw-app.chart" . }}
