@@ -3,15 +3,12 @@
 # Declare variables to be passed into your templates.
 metadata:
   name: dropwname
-  labels: 
-    name: dropwtest
-    chart: dropwtest
 
 hpa:
   enabled: true
   replicaCount: 1
   minReplicas: 1
-  maxReplicas: 3
+  maxReplicas: 10
   cpu: 70
 
 image:
