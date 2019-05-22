@@ -33,6 +33,7 @@ spec:
       paths:
         - path: {{ default "/" .path }}
           backend:
-            serviceName: {{ $fullName }}
+#            serviceName: {{ $fullName }}
+            serviceName: {{ .Values.metadata.name }}
             servicePort: {{ .Values.service.port }}
 {{- end }}
