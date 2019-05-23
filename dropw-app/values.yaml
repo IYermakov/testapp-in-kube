@@ -14,7 +14,7 @@ hpa:
   enabled: true
   replicaCount: 1
   minReplicas: 1
-  maxReplicas: 10
+  maxReplicas: 5
   cpu: 70
 
 image:
