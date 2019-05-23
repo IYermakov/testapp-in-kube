@@ -10,8 +10,8 @@ spec:
     apiVersion: apps/v1beta2
     kind: Deployment
 #    name: {{ .Release.Name }}
-#    name: {{ include "dropw-app.fullname" . }}
-    name: {{ .Values.metadata.name }}
+    name: {{ include "dropw-app.fullname" . }}
+#    name: {{ .Values.metadata.name }}
   minReplicas: {{ .Values.hpa.minReplicas }}
   maxReplicas: {{ .Values.hpa.maxReplicas }}
   metrics:

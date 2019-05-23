@@ -1,8 +1,8 @@
 # Default values for dropw-app.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-metadata:
-  name: dropw
+#metadata:
+#  name: dropw
 
 minReadySeconds: 60
 strategy:

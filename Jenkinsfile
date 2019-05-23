@@ -101,8 +101,6 @@ spec:
                                 IMAGE_NAME = ("${GIT_BRANCH}"=='master') ? "${DOCKERHUB_REPO}/${IMAGE}" : "${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}"
                                 sh """
                                 docker network create --driver=bridge curltest
-                                ls -la
-                                ls -la target
                                 docker build --build-arg GREETING -t ${IMAGE_NAME}:${IMAGE_TAG} .
                                 docker run -d --net=curltest --name='dropw-test' ${IMAGE_NAME}:${IMAGE_TAG}
                                 """
@@ -155,7 +153,7 @@ spec:
                         sh """
                             cat $certificate > ca-fra05-devcluster.pem
                             cat $kubeconfig > kubeconfig
-                            helm upgrade --install --kubeconfig kubeconfig --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --set metadata.name=dropw-${BUILD_NUMBER} --debug ${IMAGE} ${CHART_DIR}
+                            helm upgrade --install --kubeconfig kubeconfig --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --set metadata.fullnameOverride=dropw-${BUILD_NUMBER} --debug ${IMAGE} ${CHART_DIR}
                             rm -f ca-fra05-devcluster.pem
                             rm -f kubeconfig
                         """
