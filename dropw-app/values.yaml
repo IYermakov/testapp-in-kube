@@ -6,7 +6,7 @@ metadata:
 
 minReadySeconds: 0
 strategy:
-  type: rollingUpdate
+  type: RollingUpdate
   maxSurge: 1
   maxUnavailable: 1
 
