@@ -4,6 +4,12 @@
 metadata:
   name: dropw
 
+minReadySeconds: 0
+strategy:
+  type: rollingUpdate
+  maxSurge: 1
+  maxUnavailable: 1
+
 hpa:
   enabled: true
   replicaCount: 1
