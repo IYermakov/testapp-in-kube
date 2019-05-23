@@ -4,7 +4,7 @@
 metadata:
   name: dropw
 
-minReadySeconds: 0
+minReadySeconds: 60
 strategy:
   type: RollingUpdate
   maxSurge: 1
