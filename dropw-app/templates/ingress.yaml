@@ -4,7 +4,6 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{ $fullName }}
-#  name: {{ .Values.metadata.name }}
   labels:
     app.kubernetes.io/name: {{ include "dropw-app.name" . }}
     helm.sh/chart: {{ include "dropw-app.chart" . }}
@@ -33,7 +32,6 @@ spec:
       paths:
         - path: {{ default "/" .path }}
           backend:
-#            serviceName: {{ $fullName }}
-            serviceName: {{ .Values.metadata.name }}
+            serviceName: {{ $fullName }}
             servicePort: {{ .Values.service.port }}
 {{- end }}
