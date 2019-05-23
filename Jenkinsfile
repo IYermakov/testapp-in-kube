@@ -141,7 +141,6 @@ spec:
     }
 
     stage('Deploy to k8s') {
-//      when { branch 'release' }
         when { not { changeRequest() } }
             steps {
                 container('helm') {
