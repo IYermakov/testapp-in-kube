@@ -67,7 +67,6 @@ spec:
     }
 
     stage('Run maven') {
-      when { branch 'humaster' }
       steps {
         container('maven') {
           sh 'mvn -Dmaven.test.failure.ignore clean package'
@@ -141,7 +140,7 @@ spec:
                         println "Everything is OK. Application image tag is ${GREETING}"
                     }
                     failure{
-                        println "Testing results:"
+                        println "Testing is not completed:"
                         println "HTTP response for POST test person is - ${HTTP_RESPONSE_CODE_1}"
                         println "HTTP response for GET hello-world page is - ${HTTP_RESPONSE_CODE_2}"
                         println "HTTP response for GET test person - ${HTTP_RESPONSE_CODE_3}"
@@ -164,9 +163,7 @@ spec:
                         sh """
                             cat $certificate > ca-fra05-devcluster.pem
                             cat $kubeconfig > kubeconfig
-                            helm upgrade --install --kubeconfig kubeconfig --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --debug ${IMAGE} ${CHART_DIR}
-                            rm -f ca-fra05-devcluster.pem
-                            rm -f kubeconfig
+                            helm upgrade --install --kubeconfig kubeconfig --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --debug --wait ${IMAGE} ${CHART_DIR}
                         """
                     }
                 }
