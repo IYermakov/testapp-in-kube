@@ -75,8 +75,24 @@ spec:
     }
 
     stage('Docker image build') {
+        steps {
+            container('docker') {
+                IMAGE_ID = sh 'docker build .'
+            }
+        }
+        post {
+            success{
+                println "Docker build complete. Image ID is ${IMAGE_ID}"
+            }
+            failure{
+                println "Docker build failure"
+            }
+        }
+    }
+
+    stage('Docker testing') {
         parallel {
-            stage('PR docker build') {
+            stage('PR testing') {
                 when { changeRequest target: 'master' }
                     steps {
                         container('docker') {
@@ -116,21 +132,14 @@ spec:
                                 docker run -d --net=curltest --name='dropw-test' ${IMAGE_NAME}:${IMAGE_TAG}
                                 """
                                 HTTP_RESPONSE_CODE_1 = sh (script: 'docker run -i --net=curltest tutum/curl \
-                                    /usr/bin/curl -H "Content-Type: application/json" -o /dev/null -s -w "%{http_code}" -X POST -d \'{"fullName":"Test Person","jobTitle":"Test Title"}\' http://dropw-test:8080/people', returnStdout: true).trim()
-                                HTTP_RESPONSE_CODE_2 = sh (script: 'docker run -i --net=curltest tutum/curl \
                                     /usr/bin/curl -o /dev/null -I -s -w "%{http_code}" http://dropw-test:8080/hello-world', returnStdout: true).trim()
+                                HTTP_RESPONSE_CODE_2 = sh (script: 'docker run -i --net=curltest tutum/curl \
+                                    /usr/bin/curl -H "Content-Type: application/json" -o /dev/null -s -w "%{http_code}" -X POST -d \'{"fullName":"Test Person","jobTitle":"Test Title"}\' http://dropw-test:8080/people', returnStdout: true).trim()
                                 HTTP_RESPONSE_CODE_3 = sh (script: 'docker run -i --net=curltest tutum/curl \
                                     /usr/bin/curl -o /dev/null -I -s -w "%{http_code}" http://dropw-test:8080/people/1', returnStdout: true).trim()
                                 if (!"${HTTP_RESPONSE_CODE_1}" == 200 || !"${HTTP_RESPONSE_CODE_2}" == 200 || !"${HTTP_RESPONSE_CODE_3}" == 200) {
                                     println "Raising failure status"
                                     throw new Exception("Testing failure!")
-                                }
-                                withCredentials([[$class: 'UsernamePasswordMultiBinding',
-                                    credentialsId: 'dockerhub',
-                                    usernameVariable: 'DOCKER_USER',
-                                    passwordVariable: 'DOCKER_PASSWORD']]) {
-                                        sh "docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}"
-                                        sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
                                 }
                             }
                         }
@@ -141,12 +150,46 @@ spec:
                     }
                     failure{
                         println "Testing is not completed:"
-                        println "HTTP response for POST test person is - ${HTTP_RESPONSE_CODE_1}"
-                        println "HTTP response for GET hello-world page is - ${HTTP_RESPONSE_CODE_2}"
+                        println "HTTP response for GET hello-world page is - ${HTTP_RESPONSE_CODE_1}"
+                        println "HTTP response for POST test person is - ${HTTP_RESPONSE_CODE_2}"
                         println "HTTP response for GET test person - ${HTTP_RESPONSE_CODE_3}"
                     }
                 }
             }
+        }
+    }
+
+    stage('Docker. Push image to repository.') {
+        when { not { changeRequest() } }
+            steps {
+                container('docker') {
+//configure image tag
+                    withCredentials([[$class: 'UsernamePasswordMultiBinding',
+                       credentialsId: 'dockerhub',
+                       usernameVariable: 'DOCKER_USER',
+                       passwordVariable: 'DOCKER_PASSWORD']]) {
+                           sh "docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}"
+//move tagging image here
+                           sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
+                       }
+                }
+            }
+        failure{
+            println "Error pushing docker image."
+        }
+    }
+
+    stage('Lint helm chart') {
+        when { not { changeRequest() } }
+            steps {
+                container('helm') {
+                    sh """
+                        helm lint ${CHART_DIR}
+                    """
+                }
+            }
+        failure{
+            println "Error checking helm chart."
         }
     }
 
@@ -156,7 +199,6 @@ spec:
                 container('helm') {
                     sh """
                         helm init --client-only
-                        helm lint ${CHART_DIR}
                     """
                     withCredentials([file(credentialsId: "${CLUSTER_KUBECONFIG}", variable: 'kubeconfig'),
                                      file(credentialsId: "${CLUSTER_CERT}", variable: 'certificate')]) {
