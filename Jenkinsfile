@@ -67,7 +67,7 @@ spec:
     }
 
     stage('Run maven') {
-      when { branch 'master' }
+      when { branch 'humaster' }
       steps {
         container('maven') {
           sh 'mvn -Dmaven.test.failure.ignore clean package'
@@ -81,12 +81,23 @@ spec:
                 when { changeRequest target: 'master' }
                     steps {
                         container('docker') {
-                            sh """
-                                docker network create --driver=bridge curltest
-                                docker build -t ${DOCKERHUB_REPO}/${IMAGE}:PR-${CHANGE_ID} .
-                                docker run -d --network=curltest --name='dropw-test' ${DOCKERHUB_REPO}/${IMAGE}:PR-${CHANGE_ID}
-                                docker run -i --network=curltest tutum/curl /bin/bash -c '/usr/bin/curl -v http://dropw-test:8080/hello-world'
-                            """
+                            script{
+                                sh """
+                                    docker network create --driver=bridge curltest
+                                    docker build -t ${DOCKERHUB_REPO}/${IMAGE}:PR-${CHANGE_ID} .
+                                    docker run -d --network=curltest --name='dropw-test' ${DOCKERHUB_REPO}/${IMAGE}:PR-${CHANGE_ID}
+                                """
+                                HTTP_RESPONSE_CODE_1 = sh (script: 'docker run -i --net=curltest tutum/curl \
+                                    /usr/bin/curl -H "Content-Type: application/json" -o /dev/null -s -w "%{http_code}" -X POST -d \'{"fullName":"Test Person","jobTitle":"Test Title"}\' http://dropw-test:8080/people', returnStdout: true).trim()
+                                HTTP_RESPONSE_CODE_2 = sh (script: 'docker run -i --net=curltest tutum/curl \
+                                    /usr/bin/curl -o /dev/null -I -s -w "%{http_code}" http://dropw-test:8080/hello-world', returnStdout: true).trim()
+                                HTTP_RESPONSE_CODE_3 = sh (script: 'docker run -i --net=curltest tutum/curl \
+                                    /usr/bin/curl -o /dev/null -I -s -w "%{http_code}" http://dropw-test:8080/people/1', returnStdout: true).trim()
+                                if (!"${HTTP_RESPONSE_CODE_1}" == 200 || !"${HTTP_RESPONSE_CODE_2}" == 200 || !"${HTTP_RESPONSE_CODE_3}" == 200) {
+                                    println "Raising failure status"
+                                    throw new Exception("Testing failure!")
+                                }
+                            }
                         }
                     }
             }
