@@ -90,7 +90,7 @@ spec:
         steps {
             container('docker') {
                 script {
-                    IMAGE_ID = sh 'docker build . --name latest_build --build-arg GREETING'
+                    IMAGE_ID = sh 'docker build . -q --build-arg GREETING'
                 }
             }
         }
