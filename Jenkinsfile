@@ -90,9 +90,9 @@ spec:
         }
         steps {
             container('docker') {
-                script {
-                    IMAGE_ID = sh (script: 'docker build . -q --build-arg GREETING', returnStdout: true).trim()
-                }
+                sh"""
+                    IMAGE_ID = $(docker build . -q --build-arg GREETING)
+                """
             }
         }
         post {
