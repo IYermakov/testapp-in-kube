@@ -5,7 +5,7 @@ pipeline {
   environment {
     DOCKERHUB_REPO = 'notregistered'
     DOCKERHUB_SERVER = 'https://index.docker.io/v1/'
-    IMAGE = 'dropw'
+    HELM_RELEASE = 'dropw'
     IMAGE_NAME = 'dropw'
     IMAGE_TAG = sh (script: 'git describe --tags --always', returnStdout: true).trim()
     CHART_DIR = 'dropw-app'
@@ -57,7 +57,7 @@ spec:
     }
   }
   stages {
-    stage('Setting variables ') {
+    stage('Use last tag commit if present ') {
       when { buildingTag() }
       steps {
         script {
@@ -67,9 +67,18 @@ spec:
     }
 
     stage('Run maven') {
+      when { changeRequest target: 'master' }
       steps {
         container('maven') {
           sh 'mvn -Dmaven.test.failure.ignore clean package'
+        }
+      }
+      post {
+        success{
+            println "Maven build is OK"
+        }
+        failure{
+            println "Something wrong with maven build"
         }
       }
     }
@@ -77,7 +86,9 @@ spec:
     stage('Docker image build') {
         steps {
             container('docker') {
-                IMAGE_ID = sh 'docker build .'
+                script {
+                    IMAGE_ID = sh 'docker build . --name latest_build'
+                }
             }
         }
         post {
@@ -91,45 +102,29 @@ spec:
     }
 
     stage('Docker testing') {
+        sh 'docker network create --driver=bridge curltest'
         parallel {
-            stage('PR testing') {
+            stage('Test http response') {
                 when { changeRequest target: 'master' }
                     steps {
                         container('docker') {
                             script{
                                 sh """
-                                    docker network create --driver=bridge curltest
-                                    docker build -t ${DOCKERHUB_REPO}/${IMAGE}:PR-${CHANGE_ID} .
-                                    docker run -d --network=curltest --name='dropw-test' ${DOCKERHUB_REPO}/${IMAGE}:PR-${CHANGE_ID}
+                                    println "doing something..."
                                 """
-                                HTTP_RESPONSE_CODE_1 = sh (script: 'docker run -i --net=curltest tutum/curl \
-                                    /usr/bin/curl -H "Content-Type: application/json" -o /dev/null -s -w "%{http_code}" -X POST -d \'{"fullName":"Test Person","jobTitle":"Test Title"}\' http://dropw-test:8080/people', returnStdout: true).trim()
-                                HTTP_RESPONSE_CODE_2 = sh (script: 'docker run -i --net=curltest tutum/curl \
-                                    /usr/bin/curl -o /dev/null -I -s -w "%{http_code}" http://dropw-test:8080/hello-world', returnStdout: true).trim()
-                                HTTP_RESPONSE_CODE_3 = sh (script: 'docker run -i --net=curltest tutum/curl \
-                                    /usr/bin/curl -o /dev/null -I -s -w "%{http_code}" http://dropw-test:8080/people/1', returnStdout: true).trim()
-                                if (!"${HTTP_RESPONSE_CODE_1}" == 200 || !"${HTTP_RESPONSE_CODE_2}" == 200 || !"${HTTP_RESPONSE_CODE_3}" == 200) {
-                                    println "Raising failure status"
-                                    throw new Exception("Testing failure!")
                                 }
                             }
                         }
                     }
             }
-
             stage('Regular docker build') {
-                when { not { changeRequest() } }
-                environment {
-                    GREETING="${IMAGE_TAG}"
-                }
                     steps {
                         container('docker') {
                             script {
-                                IMAGE_NAME = ("${GIT_BRANCH}"=='master') ? "${DOCKERHUB_REPO}/${IMAGE}" : "${DOCKERHUB_REPO}/${IMAGE}-${GIT_BRANCH}"
                                 sh """
-                                docker network create --driver=bridge curltest
-                                docker build --build-arg GREETING -t ${IMAGE_NAME}:${IMAGE_TAG} .
-                                docker run -d --net=curltest --name='dropw-test' ${IMAGE_NAME}:${IMAGE_TAG}
+//                                docker network create --driver=bridge curltest
+//                                docker build --build-arg GREETING -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                                docker run -d --net=curltest --name='dropw-test' ${IMAGE_ID}
                                 """
                                 HTTP_RESPONSE_CODE_1 = sh (script: 'docker run -i --net=curltest tutum/curl \
                                     /usr/bin/curl -o /dev/null -I -s -w "%{http_code}" http://dropw-test:8080/hello-world', returnStdout: true).trim()
@@ -159,18 +154,25 @@ spec:
         }
     }
 
-    stage('Docker. Push image to repository.') {
+    stage('Docker tag image and push to repository.') {
         when { not { changeRequest() } }
+        environment {
+            GREETING="${IMAGE_TAG}"
+        }
             steps {
                 container('docker') {
-//configure image tag
+                script {
+                    IMAGE_NAME = ("${GIT_BRANCH}"=='master') ? "${DOCKERHUB_REPO}/${HELM_RELEASE}" : "${DOCKERHUB_REPO}/${HELM_RELEASE}-${GIT_BRANCH}"
+                }
                     withCredentials([[$class: 'UsernamePasswordMultiBinding',
-                       credentialsId: 'dockerhub',
-                       usernameVariable: 'DOCKER_USER',
-                       passwordVariable: 'DOCKER_PASSWORD']]) {
-                           sh "docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}"
-//move tagging image here
-                           sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
+                        credentialsId: 'dockerhub',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASSWORD']]) {
+                            sh """
+                                docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}
+                                docker tag ${IMAGE_ID} ${IMAGE_NAME}:${IMAGE_TAG}
+                                docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                            """
                        }
                 }
             }
@@ -205,7 +207,7 @@ spec:
                         sh """
                             cat $certificate > ca-fra05-devcluster.pem
                             cat $kubeconfig > kubeconfig
-                            helm upgrade --install --kubeconfig kubeconfig --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --debug --wait ${IMAGE} ${CHART_DIR}
+                            helm upgrade ${HELM_RELEASE} ${CHART_DIR} --install --kubeconfig kubeconfig --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --debug --wait
                         """
                     }
                 }
