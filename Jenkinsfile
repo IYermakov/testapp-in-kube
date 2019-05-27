@@ -156,8 +156,8 @@ spec:
 
     stage('Docker tag image and push to repository.') {
         when { not { changeRequest() } }
-            steps {
-                container('docker') {
+        steps {
+            container('docker') {
                 script {
                     IMAGE_NAME = ("${GIT_BRANCH}"=='master') ? "${DOCKERHUB_REPO}/${HELM_RELEASE}" : "${DOCKERHUB_REPO}/${HELM_RELEASE}-${GIT_BRANCH}"
                 }
@@ -173,8 +173,13 @@ spec:
                        }
                 }
             }
-        failure{
-            println "Error pushing docker image."
+        post {
+            success{
+                println "Image was successfully pushed to repo - ${IMAGE_NAME}:${IMAGE_TAG}"
+            }
+            failure{
+                println "Error pushing docker image"
+            }
         }
     }
 
@@ -182,33 +187,42 @@ spec:
         when { not { changeRequest() } }
             steps {
                 container('helm') {
-                    sh """
-                        helm lint ${CHART_DIR}
-                    """
+                    sh "helm lint ${CHART_DIR}"
                 }
             }
-        failure{
-            println "Error checking helm chart."
+        post {
+            success{
+                println "Helm chart successfully checked"
+            }
+            failure{
+                println "Error checking helm chart"
+            }
         }
     }
 
     stage('Deploy to k8s') {
         when { not { changeRequest() } }
-            steps {
-                container('helm') {
+        steps {
+            container('helm') {
+                sh "helm init --client-only"
+                withCredentials([file(credentialsId: "${CLUSTER_KUBECONFIG}", variable: 'kubeconfig'),
+                                 file(credentialsId: "${CLUSTER_CERT}", variable: 'certificate')]) {
                     sh """
-                        helm init --client-only
+                        cat $certificate > ca-fra05-devcluster.pem
+                        cat $kubeconfig > kubeconfig
+                        helm upgrade ${HELM_RELEASE} ${CHART_DIR} --install --kubeconfig kubeconfig --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --debug --wait
                     """
-                    withCredentials([file(credentialsId: "${CLUSTER_KUBECONFIG}", variable: 'kubeconfig'),
-                                     file(credentialsId: "${CLUSTER_CERT}", variable: 'certificate')]) {
-                        sh """
-                            cat $certificate > ca-fra05-devcluster.pem
-                            cat $kubeconfig > kubeconfig
-                            helm upgrade ${HELM_RELEASE} ${CHART_DIR} --install --kubeconfig kubeconfig --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --debug --wait
-                        """
-                    }
                 }
             }
+        }
+        post {
+            success{
+                println "New release was successfully deployed"
+            }
+            failure{
+                println "Error deploying the chart"
+            }
+        }
     }
 
   }
