@@ -84,10 +84,13 @@ spec:
     }
 
     stage('Docker image build') {
+        environment {
+            GREETING="${IMAGE_TAG}"
+        }
         steps {
             container('docker') {
                 script {
-                    IMAGE_ID = sh 'docker build . --name latest_build'
+                    IMAGE_ID = sh 'docker build . --name latest_build --build-arg GREETING'
                 }
             }
         }
@@ -102,28 +105,25 @@ spec:
     }
 
     stage('Docker testing') {
-        sh 'docker network create --driver=bridge curltest'
         parallel {
             stage('Test http response') {
                 when { changeRequest target: 'master' }
-                    steps {
-                        container('docker') {
-                            script{
-                                sh """
-                                    println "doing something..."
-                                """
-                                }
-                            }
+                steps {
+                    container('docker') {
+                        script{
+                            sh """
+                                println "doing something..."
+                            """
                         }
                     }
+                }
             }
             stage('Regular docker build') {
                     steps {
                         container('docker') {
                             script {
                                 sh """
-//                                docker network create --driver=bridge curltest
-//                                docker build --build-arg GREETING -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                                docker network create --driver=bridge curltest
                                 docker run -d --net=curltest --name='dropw-test' ${IMAGE_ID}
                                 """
                                 HTTP_RESPONSE_CODE_1 = sh (script: 'docker run -i --net=curltest tutum/curl \
@@ -152,12 +152,10 @@ spec:
                 }
             }
         }
+    }
 
     stage('Docker tag image and push to repository.') {
         when { not { changeRequest() } }
-        environment {
-            GREETING="${IMAGE_TAG}"
-        }
             steps {
                 container('docker') {
                 script {
