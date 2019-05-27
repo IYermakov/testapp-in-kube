@@ -6,6 +6,7 @@ pipeline {
     DOCKERHUB_REPO = 'notregistered'
     DOCKERHUB_SERVER = 'https://index.docker.io/v1/'
     HELM_RELEASE = 'dropw'
+    IMAGE_ID = 'latest'
     IMAGE_NAME = 'dropw'
     IMAGE_TAG = sh (script: 'git describe --tags --always', returnStdout: true).trim()
     CHART_DIR = 'dropw-app'
