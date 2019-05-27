@@ -104,6 +104,11 @@ spec:
     }
 
     stage('Docker testing') {
+        environment {
+            HTTP_RESPONSE_CODE_1='404'
+            HTTP_RESPONSE_CODE_2='404'
+            HTTP_RESPONSE_CODE_3='404'
+        }
         parallel {
             stage('Test http response') {
                 when { changeRequest target: 'master' }
