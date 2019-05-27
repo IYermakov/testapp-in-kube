@@ -152,7 +152,6 @@ spec:
                 }
             }
         }
-    }
 
     stage('Docker tag image and push to repository.') {
         when { not { changeRequest() } }
