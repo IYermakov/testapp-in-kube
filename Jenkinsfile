@@ -129,7 +129,7 @@ spec:
                     }
                 }
             }
-            stage('Tests:')
+            stage('Tests:') {
                 parallel {
                     stage('Test app response tag') {
                         steps {
@@ -182,6 +182,7 @@ spec:
                         }
                     }
                 }
+            }
         }
     }
 
