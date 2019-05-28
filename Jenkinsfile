@@ -96,7 +96,9 @@ spec:
         }
         post {
             success{
-                println "Docker build complete. Image ID is ${IMAGE_ID}"
+                println "Docker build complete."
+                println "Image ID is ${IMAGE_ID}"
+                println "Application image tag is ${GREETING}"
             }
             failure{
                 println "Docker build failure"
@@ -141,7 +143,7 @@ spec:
                 }
                 post {
                     success{
-                        println "Everything is OK. Application image tag is ${GREETING}"
+                        println "Testing successful."
                     }
                     failure{
                         println "Testing is not completed:"
