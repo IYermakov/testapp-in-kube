@@ -134,10 +134,10 @@ spec:
                     stage('Test http response tag') {
                         steps {
                             container('docker') {
-                                script{
+                                script {
                                     HTTP_RESPONSE_CODE_0 = sh (script: 'docker run -i --net=curltest tutum/curl \
                                         /usr/bin/curl -s http://dropw-test:8080/hello-world | awk \'{print $(NF-1)}\'', returnStdout: true).trim()
-                                    if (!"${HTTP_RESPONSE_CODE_0}" == ${IMAGE_TAG} {
+                                    if (!"${HTTP_RESPONSE_CODE_0}" == "${IMAGE_TAG}" {
                                         throw new Exception("Testing response app tag failure!")
                                     }
                                 }
