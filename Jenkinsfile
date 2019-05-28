@@ -136,7 +136,7 @@ spec:
                             container('docker') {
                                 script {
                                     HTTP_RESPONSE_CODE_0 = sh (script: 'docker run -i --net=curltest tutum/curl \
-                                        /usr/bin/curl -s http://dropw-test:8080/hello-world | awk \'{print $(NF-1)}\'', returnStdout: true).trim()
+                                        curl -s http://dropw-test:8080/hello-world | awk \'{print $(NF-1)}\'', returnStdout: true).trim()
                                     if (!"${HTTP_RESPONSE_CODE_0}" == "${IMAGE_TAG}") {
                                         throw new Exception("Testing response app tag failure!")
                                     }
@@ -157,14 +157,14 @@ spec:
                             container('docker') {
                                 script {
                                     HTTP_RESPONSE_CODE_1 = sh (script: 'docker run -i --net=curltest tutum/curl \
-                                        /usr/bin/curl -o /dev/null -I -s -w "%{http_code}" http://dropw-test:8080/hello-world', returnStdout: true).trim()
+                                        curl -o /dev/null -I -s -w "%{http_code}" http://dropw-test:8080/hello-world', returnStdout: true).trim()
                                     HTTP_RESPONSE_CODE_2 = sh (script: 'docker run -i --net=curltest tutum/curl \
-                                        /usr/bin/curl -H "Content-Type: application/json" -o /dev/null -s -w "%{http_code}" -X POST -d \'{"fullName":"Test Person","jobTitle":"Test Title"}\' http://dropw-test:8080/people', returnStdout: true).trim()
+                                        curl -H "Content-Type: application/json" -o /dev/null -s -w "%{http_code}" -X POST -d \'{"fullName":"Test Person","jobTitle":"Test Title"}\' http://dropw-test:8080/people', returnStdout: true).trim()
                                     HTTP_RESPONSE_CODE_3 = sh (script: 'docker run -i --net=curltest tutum/curl \
-                                        /usr/bin/curl -o /dev/null -I -s -w "%{http_code}" http://dropw-test:8080/people/1', returnStdout: true).trim()
+                                        curl -o /dev/null -I -s -w "%{http_code}" http://dropw-test:8080/people/1', returnStdout: true).trim()
                                     if (!"${HTTP_RESPONSE_CODE_1}" == 200 || !"${HTTP_RESPONSE_CODE_2}" == 200 || !"${HTTP_RESPONSE_CODE_3}" == 200) {
                                         println "Raising failure status"
-                                        throw new Exception("Testing failure!")
+                                        throw new Exception("Testing read and write failure!")
                                     }
                                 }
                             }
