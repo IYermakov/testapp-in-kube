@@ -68,7 +68,6 @@ spec:
     }
 
     stage('Run maven') {
-      when { changeRequest target: 'master' }
       steps {
         container('maven') {
           sh 'mvn -Dmaven.test.failure.ignore clean package'
