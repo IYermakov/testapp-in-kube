@@ -84,6 +84,7 @@ spec:
     }
 
     stage('Docker image build') {
+        when { allOf { branch 'master'; not { changeRequest() } } }
         environment {
             GREETING="${IMAGE_TAG}"
         }
@@ -232,7 +233,7 @@ spec:
     }
 
     stage('Deploy to k8s') {
-        when { allOf { branch 'master'; not { changeRequest() } } }
+//        when { allOf { branch 'master'; not { changeRequest() } } }
         steps {
             container('helm') {
                 sh "helm init --client-only"
