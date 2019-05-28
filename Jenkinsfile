@@ -10,7 +10,6 @@ pipeline {
     IMAGE_TAG = sh (script: 'git describe --tags --always', returnStdout: true).trim()
     CHART_DIR = 'dropw-app'
     CLUSTER_KUBECONFIG = 'ibm_devcluster_kubeconfig'
-    CLUSTER_CERT = 'ibm_devcluster_cert'
   }
   agent {
   kubernetes {
@@ -98,9 +97,9 @@ spec:
         }
         post {
             success{
-                println "Docker build complete."
+                println "Docker build complete"
                 println "Image ID is ${IMAGE_ID}"
-                println "Application image tag is ${GREETING}"
+                println "Application tag is ${GREETING}"
             }
             failure{
                 println "Docker build failure"
@@ -109,52 +108,80 @@ spec:
     }
 
     stage('Docker testing') {
-        parallel {
-            stage('Test http response') {
-                when { changeRequest target: 'master' }
+        stages {
+            stage('Run image for testing') {
                 steps {
                     container('docker') {
                         script{
                             sh """
-                                println "doing something..."
-                            """
-                        }
-                    }
-                }
-            }
-            stage('Regular docker build') {
-                steps {
-                    container('docker') {
-                        script {
-                            sh """
                                 docker network create --driver=bridge curltest
                                 docker run -d --net=curltest --name='dropw-test' ${IMAGE_ID}
                             """
-                            HTTP_RESPONSE_CODE_1 = sh (script: 'docker run -i --net=curltest tutum/curl \
-                                /usr/bin/curl -o /dev/null -I -s -w "%{http_code}" http://dropw-test:8080/hello-world', returnStdout: true).trim()
-                            HTTP_RESPONSE_CODE_2 = sh (script: 'docker run -i --net=curltest tutum/curl \
-                                /usr/bin/curl -H "Content-Type: application/json" -o /dev/null -s -w "%{http_code}" -X POST -d \'{"fullName":"Test Person","jobTitle":"Test Title"}\' http://dropw-test:8080/people', returnStdout: true).trim()
-                            HTTP_RESPONSE_CODE_3 = sh (script: 'docker run -i --net=curltest tutum/curl \
-                                /usr/bin/curl -o /dev/null -I -s -w "%{http_code}" http://dropw-test:8080/people/1', returnStdout: true).trim()
-                            if (!"${HTTP_RESPONSE_CODE_1}" == 200 || !"${HTTP_RESPONSE_CODE_2}" == 200 || !"${HTTP_RESPONSE_CODE_3}" == 200) {
-                                println "Raising failure status"
-                                throw new Exception("Testing failure!")
-                            }
                         }
                     }
                 }
                 post {
                     success{
-                        println "Testing successful."
+                        println "App 'dropw-test' is running in bridge network 'curltest'"
                     }
                     failure{
-                        println "Testing is not completed:"
-                        println "HTTP response for GET hello-world page is - ${HTTP_RESPONSE_CODE_1}"
-                        println "HTTP response for POST test person is - ${HTTP_RESPONSE_CODE_2}"
-                        println "HTTP response for GET test person - ${HTTP_RESPONSE_CODE_3}"
+                        println "Error running app"
                     }
                 }
             }
+            stage('Tests:')
+                parallel {
+                    stage('Test http response tag') {
+                        steps {
+                            container('docker') {
+                                script{
+                                    HTTP_RESPONSE_CODE_0 = sh (script: 'docker run -i --net=curltest tutum/curl \
+                                        /usr/bin/curl -s http://dropw-test:8080/hello-world | awk \'{print $(NF-1)}\'', returnStdout: true).trim()
+                                    if (!"${HTTP_RESPONSE_CODE_0}" == ${IMAGE_TAG} {
+                                        throw new Exception("Testing response app tag failure!")
+                                    }
+                                }
+                            }
+                        }
+                        post {
+                            success{
+                                println "Testing reponse app tag was successful"
+                            }
+                            failure{
+                                println "Error testing response app tag"
+                            }
+                        }
+                    }
+                    stage('Regular docker build') {
+                        steps {
+                            container('docker') {
+                                script {
+                                    HTTP_RESPONSE_CODE_1 = sh (script: 'docker run -i --net=curltest tutum/curl \
+                                        /usr/bin/curl -o /dev/null -I -s -w "%{http_code}" http://dropw-test:8080/hello-world', returnStdout: true).trim()
+                                    HTTP_RESPONSE_CODE_2 = sh (script: 'docker run -i --net=curltest tutum/curl \
+                                        /usr/bin/curl -H "Content-Type: application/json" -o /dev/null -s -w "%{http_code}" -X POST -d \'{"fullName":"Test Person","jobTitle":"Test Title"}\' http://dropw-test:8080/people', returnStdout: true).trim()
+                                    HTTP_RESPONSE_CODE_3 = sh (script: 'docker run -i --net=curltest tutum/curl \
+                                        /usr/bin/curl -o /dev/null -I -s -w "%{http_code}" http://dropw-test:8080/people/1', returnStdout: true).trim()
+                                    if (!"${HTTP_RESPONSE_CODE_1}" == 200 || !"${HTTP_RESPONSE_CODE_2}" == 200 || !"${HTTP_RESPONSE_CODE_3}" == 200) {
+                                        println "Raising failure status"
+                                        throw new Exception("Testing failure!")
+                                    }
+                                }
+                            }
+                        }
+                        post {
+                            success{
+                                println "Testing successful."
+                            }
+                            failure{
+                                println "Testing is not completed:"
+                                println "HTTP response for GET hello-world page is - ${HTTP_RESPONSE_CODE_1}"
+                                println "HTTP response for POST test person is - ${HTTP_RESPONSE_CODE_2}"
+                                println "HTTP response for GET test person - ${HTTP_RESPONSE_CODE_3}"
+                            }
+                        }
+                    }
+                }
         }
     }
 
@@ -205,7 +232,7 @@ spec:
     }
 
     stage('Deploy to k8s') {
-        when { not { changeRequest() } }
+        when { allOf { branch 'master'; not { changeRequest() } }
         steps {
             container('helm') {
                 sh "helm init --client-only"

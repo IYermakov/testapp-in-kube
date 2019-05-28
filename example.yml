@@ -1,4 +1,4 @@
-template: Application tag is, %s!
+template: Application tag is, %s !
 
 defaultName: ${DW_DEFAULT_NAME:-tag}
 
