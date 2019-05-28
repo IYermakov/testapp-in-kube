@@ -65,7 +65,6 @@ spec:
     }
 
     stage('Run maven') {
-      when { allOf { branch 'master'; not { changeRequest() } } }
       steps {
         container('maven') {
           sh 'mvn -Dmaven.test.failure.ignore clean package'
@@ -232,7 +231,7 @@ spec:
     }
 
     stage('Deploy to k8s') {
-//        when { allOf { branch 'master'; not { changeRequest() } } }
+        when { allOf { branch 'master'; not { changeRequest() } } }
         steps {
             container('helm') {
                 sh "helm init --client-only"
