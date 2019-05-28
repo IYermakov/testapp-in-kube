@@ -3,10 +3,9 @@ pipeline {
     timestamps()
   }
   environment {
-    DOCKERHUB_REPO = 'notregistered'
     DOCKERHUB_SERVER = 'https://index.docker.io/v1/'
     HELM_RELEASE = 'dropw'
-    IMAGE_NAME = 'dropw'
+    IMAGE_NAME = 'notregistered/dropw'
     IMAGE_TAG = sh (script: 'git describe --tags --always', returnStdout: true).trim()
     CHART_DIR = 'dropw-app'
     CLUSTER_KUBECONFIG = 'ibm_devcluster_kubeconfig'
@@ -189,7 +188,9 @@ spec:
         steps {
             container('docker') {
                 script {
-                    IMAGE_TAG = ("${GIT_BRANCH}"=='master') ? "${IMAGE_TAG}" : "${GIT_BRANCH}-${IMAGE_TAG}"
+                    if ("${GIT_BRANCH}"!='master') {
+                        IMAGE_TAG = "${GIT_BRANCH}-${IMAGE_TAG}"
+                    }
                 }
                     withCredentials([[$class: 'UsernamePasswordMultiBinding',
                         credentialsId: 'dockerhub',
@@ -197,8 +198,8 @@ spec:
                         passwordVariable: 'DOCKER_PASSWORD']]) {
                             sh """
                                 docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}
-                                docker tag ${IMAGE_ID} ${DOCKERHUB_REPO}/${IMAGE_NAME}:${IMAGE_TAG}
-                                docker push ${DOCKERHUB_REPO}/${IMAGE_NAME}:${IMAGE_TAG}
+                                docker tag ${IMAGE_ID} ${IMAGE_NAME}:${IMAGE_TAG}
+                                docker push ${IMAGE_NAME}:${IMAGE_TAG}
                             """
                        }
                 }
