@@ -62,6 +62,8 @@ spec:
       steps {
         script {
             IMAGE_TAG = "${TAG_NAME}"
+            sh (script: 'git tag', returnStdout: true).trim()
+            sh (script: 'git describe', returnStdout: true).trim()
         }
       }
     }
