@@ -209,10 +209,8 @@ spec:
         steps {
             container('helm') {
                 sh "helm init --client-only"
-                withCredentials([file(credentialsId: "${CLUSTER_KUBECONFIG}", variable: 'kubeconfig'),
-                                 file(credentialsId: "${CLUSTER_CERT}", variable: 'certificate')]) {
+                withCredentials([file(credentialsId: "${CLUSTER_KUBECONFIG}", variable: 'kubeconfig')]) {
                     sh """
-                        cat $certificate > ca-fra05-devcluster.pem
                         cat $kubeconfig > kubeconfig
                         helm upgrade ${HELM_RELEASE} ${CHART_DIR} --install --kubeconfig kubeconfig --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --debug --wait
                     """
