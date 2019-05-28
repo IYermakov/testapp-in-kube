@@ -61,13 +61,12 @@ spec:
       steps {
         script {
             IMAGE_TAG = "${TAG_NAME}"
-            sh (script: 'git tag', returnStdout: true).trim()
-            sh (script: 'git describe', returnStdout: true).trim()
         }
       }
     }
 
     stage('Run maven') {
+      when { allOf { branch 'master'; not { changeRequest() } } }
       steps {
         container('maven') {
           sh 'mvn -Dmaven.test.failure.ignore clean package'
@@ -84,7 +83,6 @@ spec:
     }
 
     stage('Docker image build') {
-        when { allOf { branch 'master'; not { changeRequest() } } }
         environment {
             GREETING="${IMAGE_TAG}"
         }
@@ -191,7 +189,7 @@ spec:
         steps {
             container('docker') {
                 script {
-                    IMAGE_NAME = ("${GIT_BRANCH}"=='master') ? "${DOCKERHUB_REPO}/${HELM_RELEASE}" : "${DOCKERHUB_REPO}/${HELM_RELEASE}-${GIT_BRANCH}"
+                    IMAGE_TAG = ("${GIT_BRANCH}"=='master') ? "${IMAGE_TAG}" : "${GIT_BRANCH}-${IMAGE_TAG}"
                 }
                     withCredentials([[$class: 'UsernamePasswordMultiBinding',
                         credentialsId: 'dockerhub',
@@ -199,8 +197,8 @@ spec:
                         passwordVariable: 'DOCKER_PASSWORD']]) {
                             sh """
                                 docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKERHUB_SERVER}
-                                docker tag ${IMAGE_ID} ${IMAGE_NAME}:${IMAGE_TAG}
-                                docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                                docker tag ${IMAGE_ID} ${DOCKERHUB_REPO}/${IMAGE_NAME}:${IMAGE_TAG}
+                                docker push ${DOCKERHUB_REPO}/${IMAGE_NAME}:${IMAGE_TAG}
                             """
                        }
                 }
