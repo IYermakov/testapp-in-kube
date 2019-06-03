@@ -7,7 +7,7 @@ ARG GREETING
 ENV DW_DEFAULT_NAME=$GREETING
 
 WORKDIR /
-ADD target/dropwizard-example-0.0.1-SNAPSHOT.jar dropwizard.jar
+ADD target/dropwizard-example-*-SNAPSHOT.jar dropwizard.jar
 ADD example.mv.db example.mv.db
 ADD example.yml example.yml
 EXPOSE 8080
