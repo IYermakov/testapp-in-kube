@@ -1,0 +1,21 @@
+apiVersion: v1
+appVersion: "10.0"
+description: A Helm chart to deploy IBM Cloud ALB metrics exporter
+keywords:
+- Ingress
+- ALB
+- IKS
+- amd64
+- DevOps
+- Tools
+kubeVersion: '>=1.10.0'
+maintainers:
+- email: ayma@us.ibm.com
+  name: Andrea Ma
+- email: akoundin@in.ibm.com
+  name: Ayyalaraju Koundinya
+- email: kgurudut@in.ibm.com
+  name: Kshama Gurudutt
+name: ibmcloud-alb-metrics-exporter
+tillerVersion: '>=2.6.0'
+version: 1.0.10

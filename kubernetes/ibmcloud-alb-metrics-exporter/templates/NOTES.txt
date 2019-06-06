@@ -1,0 +1,3 @@
+Thank you for installing: {{ .Chart.Name }}. Your release is named: {{ .Release.Name }}
+
+Please refer Chart README.md file for additional instructions on how to use the IBM Cloud ALB Metrics Exporter.

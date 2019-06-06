@@ -85,18 +85,18 @@ service:
   labels: {}
 
 ingress:
-  enabled: true
+  enabled: false
   annotations: {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   labels: {}
   path: /
   hosts:
-    - grafana.devcluster.eu-de.containers.appdomain.cloud
-  tls:
-    - secretName: devcluster
-      hosts:
-        - grafana.devcluster.eu-de.containers.appdomain.cloud
+    - chart-example.local
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
 
 resources: {}
 #  limits:

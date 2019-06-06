@@ -1,0 +1,97 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.metricsNameSpace }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      {{ if eq .Values.prometheusAgentEnable true }}
+      annotations:
+        prometheus.io/probe: 'true'
+        prometheus.io/scrape: 'true'
+      {{ end }}
+      labels:
+        app: {{ .Values.name }}
+    spec:
+     affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - {{ .Values.albId }}
+            topologyKey: "{{ .Values.topologyKey }}"
+            namespaces:
+            - {{ .Values.albNameSpace | default "kube-system"}}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - {{ .Values.name }}
+            topologyKey: "{{ .Values.topologyKey }}"
+     containers:
+     - env:
+       - name: MY_NODE_NAME
+         valueFrom:
+           fieldRef:
+             fieldPath: spec.nodeName
+       - name: INTERNAL_PORT
+         value: "{{ .Values.internalPort }}"
+       - name: ALB_NS
+         value: "{{ .Values.albNameSpace  | default "kube-system"}}"
+       - name: ALB_ID
+         value: {{ .Values.albId }}
+       name: {{ .Values.name }}
+       image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+       command: ["/bin/ibmcloud-alb-metrics-exporter"]
+       ports:
+       - containerPort: 9913
+     serviceAccountName: alb-metrics-service-account
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: {{ .Values.metricsNameSpace }}
+  name: alb-metrics-service-account
+imagePullSecrets:
+  - name: bluemix-default-secret
+  - name: bluemix-default-secret-regional
+  - name: bluemix-default-secret-international
+  - name: default-icr-io
+  - name: kube-system-icr-io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: alb-metrics-service-cluster-role
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - delete
+      - get
+      - list
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: alb-metrics-service-cluster-role-binding
+subjects:
+  - kind: ServiceAccount
+    name: alb-metrics-service-account
+    namespace: {{ .Values.metricsNameSpace }}
+roleRef:
+  kind: ClusterRole
+  name: alb-metrics-service-cluster-role
+  apiGroup: rbac.authorization.k8s.io

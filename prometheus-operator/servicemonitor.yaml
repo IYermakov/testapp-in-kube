@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: ibmcloud-alb-metrics-exporter
+    release: prometheus-operator
+  name: alb-metrics-monitor
+  namespace: kube-system
+spec:
+  endpoints:
+  - port: alb-metrics-port
+    scheme: http
+#  namespaceSelector:
+#    matchNames:
+#    - kube-system
+  selector:
+    matchLabels:
+      app: ibmcloud-alb-metrics-exporter
