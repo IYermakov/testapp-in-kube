@@ -97,18 +97,41 @@ alertmanager:
   config:
     global:
       resolve_timeout: 5m
+#    route:
+#      group_by: ['job']
+#      group_wait: 30s
+#      group_interval: 5m
+#      repeat_interval: 12h
+#      receiver: 'null'
+#      routes:
+#      - match:
+#          alertname: Watchdog
+#        receiver: 'null'
+#    receivers:
+#    - name: 'null'
+
     route:
       group_by: ['job']
+      # If an alert isn't caught by a route, send it slack.
+      receiver: slack_notregistered
       group_wait: 30s
       group_interval: 5m
       repeat_interval: 12h
-      receiver: 'null'
       routes:
+      # Send severity=slack alerts to slack.
+      - match:
+          severity: slack
+        receiver: slack_notregistered
       - match:
           alertname: Watchdog
         receiver: 'null'
+
     receivers:
     - name: 'null'
+    - name: slack_notregistered
+      slack_configs:
+      - api_url: https://hooks.slack.com/services/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
+        channel: '#alerts'
 
   ## Alertmanager template files to format alerts
   ## ref: https://prometheus.io/docs/alerting/notifications/
@@ -221,7 +244,7 @@ alertmanager:
     ## If true then the user will be responsible to provide a secret with alertmanager configuration
     ## So when true the config part will be ignored (including templateFiles) and the one in the secret will be used
     ##
-    useExistingSecret: false
+    useExistingSecret: true
 
     ## Secrets is a list of Secrets in the same namespace as the Alertmanager object, which shall be mounted into the
     ## Alertmanager Pods. The Secrets are mounted into /etc/alertmanager/secrets/.

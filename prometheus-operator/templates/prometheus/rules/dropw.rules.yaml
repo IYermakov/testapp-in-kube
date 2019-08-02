@@ -1,0 +1,31 @@
+# Generated from 'prometheus.rules' group from https://raw.githubusercontent.com/coreos/kube-prometheus/master/manifests/prometheus-rules.yaml
+# Do not change in-place! In order to change this file first read following link:
+# https://github.com/helm/charts/tree/master/stable/prometheus-operator/hack
+{{- if and .Values.defaultRules.create .Values.defaultRules.rules.prometheus }}
+{{- $prometheusJob := printf "%s-%s" (include "prometheus-operator.fullname" .) "prometheus" }}
+{{- $namespace := .Release.Namespace }}
+apiVersion: {{ printf "%s/v1" (.Values.prometheusOperator.crdApiGroup | default "monitoring.coreos.com") }}
+kind: PrometheusRule
+metadata:
+  name: {{ printf "%s-%s" (include "prometheus-operator.fullname" .) "dropw.rules" | trunc 63 | trimSuffix "-" }}
+  labels:
+    app: {{ template "prometheus-operator.name" . }}
+{{ include "prometheus-operator.labels" . | indent 4 }}
+{{- if .Values.defaultRules.labels }}
+{{ toYaml .Values.defaultRules.labels | indent 4 }}
+{{- end }}
+{{- if .Values.defaultRules.annotations }}
+  annotations:
+{{ toYaml .Values.defaultRules.annotations | indent 4 }}
+{{- end }}
+spec:
+  groups:
+  - name: dropw.rules
+    rules:
+    - alert: Current load is over threshold 
+      annotations:
+        description: '{{`{{$labels.namespace}}`}}/{{`{{$labels.pod}}`}} if full load'
+      expr: (kube_hpa_status_current_replicas{hpa='dropw-dropw-app'}/kube_hpa_spec_max_replicas{hpa='dropw-dropw-app'}*100) > 80
+      labels:
+        severity: dropw
+{{- end }}
