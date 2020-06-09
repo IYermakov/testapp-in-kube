@@ -1,7 +1,7 @@
 FROM openjdk:8-jre-alpine
 
 LABEL io.k8s.description="Simple RESTful Application" \
-      io.k8s.display-name="dropw"
+      io.k8s.display-name="dropwizard"
 
 ARG GREETING
 ENV DW_DEFAULT_NAME=$GREETING
