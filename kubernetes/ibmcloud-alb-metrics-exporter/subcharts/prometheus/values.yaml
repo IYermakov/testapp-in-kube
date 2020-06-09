@@ -1,0 +1,6 @@
+# Default values for ibmcloud-alb-metrics-exporter-chart sample chart to deploy prometheus.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+nameSpace: kube-system
+hostName: prom-dash.devcluster.eu-de.containers.appdomain.cloud
